@@ -81,32 +81,38 @@ function hashPassword(password: string): string {
 // --- HTTP REST ENDPOINTS ---
 
 // Auth Register
-app.post('/api/auth/register', (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   try {
-    const { email, password, username, avatar } = req.body;
+    const email = (req.body.email || '').trim();
+    const password = (req.body.password || '').trim();
+    const username = (req.body.username || '').trim();
+    const avatar = req.body.avatar;
+
     if (!email || !password || !username) {
-      return res.status(400).json({ error: 'All fields are required' });
+      return res.status(400).json({ error: 'Email, password, and username are required' });
     }
 
-    if (db.findUserByEmail(email)) {
+    const existingEmail = await db.findUserByEmail(email);
+    if (existingEmail) {
       return res.status(400).json({ error: 'Email already registered' });
     }
 
-    if (db.findUserByUsername(username)) {
+    const existingUsername = await db.findUserByUsername(username);
+    if (existingUsername) {
       return res.status(400).json({ error: 'Username already taken' });
     }
 
     const newUser: UserAccount = {
       id: Math.random().toString(36).substring(2, 9),
-      email: email.trim(),
+      email: email.toLowerCase(),
       passwordHash: hashPassword(password),
-      username: username.trim(),
-      avatar: avatar || 'preset1',
+      username: username,
+      avatar: avatar || '#00F0FF',
       createdAt: Date.now(),
     };
 
-    db.saveUser(newUser);
-    
+    await db.saveUser(newUser);
+
     // Omit password hash on response
     const { passwordHash, ...userRes } = newUser;
     return res.status(200).json(userRes);
@@ -116,14 +122,16 @@ app.post('/api/auth/register', (req, res) => {
 });
 
 // Auth Login
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = (req.body.email || '').trim();
+    const password = (req.body.password || '').trim();
+
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const user = db.findUserByEmail(email);
+    const user = await db.findUserByEmail(email);
     if (!user || user.passwordHash !== hashPassword(password)) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }

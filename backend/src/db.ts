@@ -70,7 +70,7 @@ class DatabaseService {
     return this.fallbackData.users;
   }
 
-  public saveUser(user: UserAccount) {
+  public async saveUser(user: UserAccount): Promise<UserAccount> {
     const index = this.fallbackData.users.findIndex((u) => u.id === user.id);
     if (index !== -1) {
       this.fallbackData.users[index] = user;
@@ -80,32 +80,77 @@ class DatabaseService {
     this.saveJsonFallback();
 
     // Persist to Prisma
-    prisma.user.upsert({
-      where: { email: user.email },
-      update: {
-        username: user.username,
-        avatar: user.avatar,
-        bio: user.bio,
-        optedOutStats: user.optedOutStats ?? false,
-      },
-      create: {
-        id: user.id,
-        email: user.email,
-        passwordHash: user.passwordHash,
-        username: user.username,
-        avatar: user.avatar,
-        bio: user.bio,
-        optedOutStats: user.optedOutStats ?? false,
-      },
-    }).catch((err) => console.log('[PRISMA USER PERSIST ERROR]', err.message));
+    try {
+      await prisma.user.upsert({
+        where: { email: user.email.toLowerCase() },
+        update: {
+          username: user.username,
+          avatar: user.avatar,
+          bio: user.bio,
+          optedOutStats: user.optedOutStats ?? false,
+        },
+        create: {
+          id: user.id,
+          email: user.email.toLowerCase(),
+          passwordHash: user.passwordHash,
+          username: user.username,
+          avatar: user.avatar,
+          bio: user.bio,
+          optedOutStats: user.optedOutStats ?? false,
+        },
+      });
+    } catch (err: any) {
+      console.log('[PRISMA USER PERSIST NOTICE]', err.message);
+    }
+    return user;
   }
 
-  public findUserByEmail(email: string): UserAccount | undefined {
-    return this.fallbackData.users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+  public async findUserByEmail(email: string): Promise<UserAccount | undefined> {
+    const cleanEmail = (email || '').trim().toLowerCase();
+    try {
+      const dbUser = await prisma.user.findUnique({
+        where: { email: cleanEmail },
+      });
+      if (dbUser) {
+        return {
+          id: dbUser.id,
+          email: dbUser.email,
+          passwordHash: dbUser.passwordHash,
+          username: dbUser.username,
+          avatar: dbUser.avatar,
+          bio: dbUser.bio || undefined,
+          optedOutStats: dbUser.optedOutStats,
+          createdAt: dbUser.createdAt.getTime(),
+        };
+      }
+    } catch (e: any) {
+      console.log('[DB FIND EMAIL NOTICE]', e.message);
+    }
+    return this.fallbackData.users.find((u) => u.email.toLowerCase() === cleanEmail);
   }
 
-  public findUserByUsername(username: string): UserAccount | undefined {
-    return this.fallbackData.users.find((u) => u.username.toLowerCase() === username.toLowerCase());
+  public async findUserByUsername(username: string): Promise<UserAccount | undefined> {
+    const cleanUsername = (username || '').trim().toLowerCase();
+    try {
+      const dbUser = await prisma.user.findFirst({
+        where: { username: { equals: cleanUsername, mode: 'insensitive' } },
+      });
+      if (dbUser) {
+        return {
+          id: dbUser.id,
+          email: dbUser.email,
+          passwordHash: dbUser.passwordHash,
+          username: dbUser.username,
+          avatar: dbUser.avatar,
+          bio: dbUser.bio || undefined,
+          optedOutStats: dbUser.optedOutStats,
+          createdAt: dbUser.createdAt.getTime(),
+        };
+      }
+    } catch (e: any) {
+      console.log('[DB FIND USERNAME NOTICE]', e.message);
+    }
+    return this.fallbackData.users.find((u) => u.username.toLowerCase() === cleanUsername);
   }
 
   // --- Friends CRUD ---
