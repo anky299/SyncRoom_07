@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useSearchParams, useRouter } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
+import { getBackendUrl } from '@/lib/config';
+import { safeFetchJson } from '@/lib/api';
 import { useSyncPlayer, Track, ChatMessage, ReactionItem, LyricLine } from '@/hooks/useSyncPlayer';
 import { GlassCard } from '@/components/GlassCard';
 import {
@@ -60,7 +62,7 @@ const SpotifyPlayerBackend = dynamic(() => import('@/components/SpotifyPlayerBac
 const YouTubePlayerBackend = dynamic(() => import('@/components/YouTubePlayerBackend'), { ssr: false });
 const AddSongModal = dynamic(() => import('@/components/AddSongModal'), { ssr: false });
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+const BACKEND_URL = getBackendUrl();
 
 export default function RoomPage() {
   const router = useRouter();
@@ -237,11 +239,8 @@ export default function RoomPage() {
     if (showInviteModal && session?.user) {
       const fetchFriends = async () => {
         try {
-          const res = await fetch(`${BACKEND_URL}/api/friends/list?username=${encodeURIComponent((session.user as any).username)}`);
-          if (res.ok) {
-            const list = await res.json();
-            setOnlineFriends(list.filter((f: any) => f.status === 'accepted'));
-          }
+          const list = await safeFetchJson(`/api/friends/list?username=${encodeURIComponent((session.user as any).username)}`);
+          setOnlineFriends(list.filter((f: any) => f.status === 'accepted'));
         } catch (e) {
           console.log('Failed to load friends', e);
         }

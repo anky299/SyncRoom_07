@@ -9,6 +9,14 @@
       "createdAt": 1787398023957,
       "optedOutStats": false,
       "bio": ""
+    },
+    {
+      "id": "hwfyp7h",
+      "email": "testuser@syncroom.app",
+      "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+      "username": "testuser123",
+      "avatar": "#00F0FF",
+      "createdAt": 1787416896003
     }
   ],
   "friends": [],

@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Search, Music, Radio, FileText, Check, AlertCircle } from 'lucide-react';
 import { Track, TrackSource } from '@/hooks/useSyncPlayer';
+import { safeFetchJson } from '@/lib/api';
 
 interface AddSongModalProps {
   isOpen: boolean;
@@ -11,8 +12,6 @@ interface AddSongModalProps {
   onUploadFile: (audioFile: File, lyricsFile?: File) => Promise<Track>;
 }
 
-const rawBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
-const BACKEND_URL = rawBackendUrl.replace(/\/+$/, '');
 
 export default function AddSongModal({
   isOpen,
@@ -64,11 +63,8 @@ export default function AddSongModal({
     if (!spotifyQuery.trim()) return;
     setSearchingSpotify(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/api/spotify/search?q=${encodeURIComponent(spotifyQuery.trim())}`);
-      if (res.ok) {
-        const data = await res.json();
-        setSpotifyResults(data);
-      }
+      const data = await safeFetchJson(`/api/spotify/search?q=${encodeURIComponent(spotifyQuery.trim())}`);
+      setSpotifyResults(data);
     } catch (e) {
       console.log('Spotify search failed', e);
     } finally {
@@ -82,11 +78,8 @@ export default function AddSongModal({
     if (!youtubeQuery.trim()) return;
     setSearchingYoutube(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/api/youtube/search?q=${encodeURIComponent(youtubeQuery.trim())}`);
-      if (res.ok) {
-        const data = await res.json();
-        setYoutubeResults(data);
-      }
+      const data = await safeFetchJson(`/api/youtube/search?q=${encodeURIComponent(youtubeQuery.trim())}`);
+      setYoutubeResults(data);
     } catch (e) {
       console.log('YouTube search failed', e);
     } finally {

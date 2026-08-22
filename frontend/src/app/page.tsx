@@ -6,6 +6,8 @@ import { useSession, signIn, signOut } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import { useTheme, THEMES, ThemeName } from '@/context/ThemeContext';
 import { GlassCard } from '@/components/GlassCard';
+import { getBackendUrl } from '@/lib/config';
+import { safeFetchJson } from '@/lib/api';
 import {
   Home as HomeIcon,
   Grid,
@@ -66,7 +68,7 @@ const CityDome3D = dynamic(() => import('@/components/CityDome3D'), {
   ),
 });
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+const BACKEND_URL = getBackendUrl();
 const AVATAR_PRESETS = ['#00F0FF', '#00FF9D', '#FF5E7E', '#39FF14', '#A855F7', '#FF9F43'];
 
 export default function RealDataHomePage() {
@@ -152,11 +154,8 @@ export default function RealDataHomePage() {
 
   const fetchPlatformStats = async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/rooms/stats`);
-      if (res.ok) {
-        const data = await res.json();
-        setPlatformStats(data);
-      }
+      const data = await safeFetchJson('/api/rooms/stats');
+      setPlatformStats(data);
     } catch (e) {
       console.log('Failed to fetch platform stats', e);
     }
@@ -165,17 +164,11 @@ export default function RealDataHomePage() {
   const fetchUserData = async (uName: string) => {
     setDataLoading(true);
     try {
-      const statsRes = await fetch(`${BACKEND_URL}/api/stats?username=${encodeURIComponent(uName)}`);
-      if (statsRes.ok) {
-        const statsData = await statsRes.json();
-        setStats(statsData);
-      }
+      const statsData = await safeFetchJson(`/api/stats?username=${encodeURIComponent(uName)}`);
+      setStats(statsData);
 
-      const friendsRes = await fetch(`${BACKEND_URL}/api/friends/list?username=${encodeURIComponent(uName)}`);
-      if (friendsRes.ok) {
-        const friendsData = await friendsRes.json();
-        setFriends(friendsData);
-      }
+      const friendsData = await safeFetchJson(`/api/friends/list?username=${encodeURIComponent(uName)}`);
+      setFriends(friendsData);
     } catch (e) {
       console.log('Failed to fetch user data', e);
     } finally {
@@ -190,11 +183,10 @@ export default function RealDataHomePage() {
     const curUser = (session?.user as any)?.username || username || 'Guest';
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/rooms/${roomToDelete.roomId}?username=${encodeURIComponent(curUser)}`, {
+      const data = await safeFetchJson(`/api/rooms/${roomToDelete.roomId}?username=${encodeURIComponent(curUser)}`, {
         method: 'DELETE',
       });
-      const data = await res.json();
-      if (res.ok && data.success) {
+      if (data.success) {
         setStats((prev) =>
           prev
             ? {
@@ -221,7 +213,7 @@ export default function RealDataHomePage() {
 
     try {
       if (authMode === 'register') {
-        const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
+        await safeFetchJson('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -231,11 +223,6 @@ export default function RealDataHomePage() {
             avatar: authAvatar,
           }),
         });
-
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Registration failed');
-        }
       }
 
       const result = await signIn('credentials', {
@@ -265,7 +252,7 @@ export default function RealDataHomePage() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/api/auth/profile`, {
+      const updatedUser = await safeFetchJson('/api/auth/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -277,12 +264,6 @@ export default function RealDataHomePage() {
         }),
       });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Failed to update profile');
-      }
-
-      const updatedUser = await res.json();
       await updateSession({
         username: updatedUser.username,
         avatar: updatedUser.avatar,
@@ -359,7 +340,7 @@ export default function RealDataHomePage() {
     setFriendSuccess('');
     const uName = (session?.user as any)?.username || username || 'Guest';
     try {
-      const res = await fetch(`${BACKEND_URL}/api/friends/add`, {
+      await safeFetchJson('/api/friends/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -368,16 +349,11 @@ export default function RealDataHomePage() {
         }),
       });
 
-      if (res.ok) {
-        setFriendSuccess('Friend request sent!');
-        setFriendSearch('');
-        fetchUserData(uName);
-      } else {
-        const err = await res.json();
-        setFriendError(err.error || 'Failed to add friend');
-      }
-    } catch (e) {
-      setFriendError('Server error sending request');
+      setFriendSuccess('Friend request sent!');
+      setFriendSearch('');
+      fetchUserData(uName);
+    } catch (e: any) {
+      setFriendError(e.message || 'Failed to add friend');
     }
   };
 

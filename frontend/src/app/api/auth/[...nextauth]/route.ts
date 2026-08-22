@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { safeFetchJson } from '@/lib/api';
 
 const handler = NextAuth({
   providers: [
@@ -12,10 +13,8 @@ const handler = NextAuth({
       async authorize(credentials) {
         if (!credentials) return null;
 
-        const rawBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
-        const BACKEND_URL = rawBackendUrl.replace(/\/+$/, '');
         try {
-          const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
+          const user = await safeFetchJson('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -23,15 +22,11 @@ const handler = NextAuth({
               password: credentials.password,
             }),
           });
-
-          if (res.ok) {
-            const user = await res.json();
-            return user; // contains id, email, username, avatar, bio, optedOutStats
-          }
+          return user; // contains id, email, username, avatar, bio, optedOutStats
         } catch (e) {
           console.error('NextAuth authorize failed:', e);
+          return null;
         }
-        return null;
       },
     }),
   ],

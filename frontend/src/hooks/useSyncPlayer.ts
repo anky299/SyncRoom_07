@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { getBackendUrl } from '@/lib/config';
+import { safeFetchJson } from '@/lib/api';
 
 export type TrackSource = 'upload' | 'spotify' | 'youtube';
 
@@ -87,7 +89,7 @@ export interface LyricLine {
   text: string;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+const BACKEND_URL = getBackendUrl();
 
 export function useSyncPlayer(roomId: string, username: string) {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -640,17 +642,11 @@ export function useSyncPlayer(roomId: string, username: string) {
     formData.append('duration', duration.toString());
     formData.append('uploadedBy', username);
 
-    const response = await fetch(`${BACKEND_URL}/api/upload`, {
+    const track = await safeFetchJson('/api/upload', {
       method: 'POST',
       body: formData,
     });
 
-    if (!response.ok) {
-      const errRes = await response.json();
-      throw new Error(errRes.error || 'Upload failed');
-    }
-
-    const track = await response.json();
     return track;
   };
 

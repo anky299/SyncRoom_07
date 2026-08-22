@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { getBackendUrl } from '@/lib/config';
 
 declare global {
   interface Window {
@@ -136,7 +137,7 @@ export default function SpotifyPlayerBackend({
         <p className="font-extrabold text-emerald-400">Spotify Track Playing</p>
         <p className="text-zinc-300">Connect your Spotify Premium account in Settings to listen to this track in sync.</p>
         <a
-          href="http://localhost:4000/api/auth/spotify/login"
+          href={`${getBackendUrl()}/api/auth/spotify/login`}
           className="inline-block px-4 py-1.5 bg-emerald-500 text-black font-extrabold rounded-xl hover:bg-emerald-400 transition-all cursor-pointer"
         >
           Connect Spotify Premium
