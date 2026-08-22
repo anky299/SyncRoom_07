@@ -11,7 +11,8 @@ interface AddSongModalProps {
   onUploadFile: (audioFile: File, lyricsFile?: File) => Promise<Track>;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+const rawBackendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+const BACKEND_URL = rawBackendUrl.replace(/\/+$/, '');
 
 export default function AddSongModal({
   isOpen,
