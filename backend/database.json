@@ -1,0 +1,182 @@
+{
+  "users": [
+    {
+      "id": "1yqe143",
+      "email": "ankitgoswami2444@gmail.com",
+      "passwordHash": "2e579f64a74571afc2e6b9b55132d232bc8cd93393748a0cc8037b27d0834efb",
+      "username": "ankyy",
+      "avatar": "#A855F7",
+      "createdAt": 1787398023957,
+      "optedOutStats": false,
+      "bio": ""
+    }
+  ],
+  "friends": [],
+  "history": [
+    {
+      "id": "3lpftci",
+      "username": "User",
+      "trackTitle": "mai tenu  samjhaywa ki (Official Audio)",
+      "artist": "Featured Artist",
+      "durationMinutes": 4,
+      "roomName": "Chill",
+      "timestamp": 1787408090250
+    },
+    {
+      "id": "i2xvno4",
+      "username": "User",
+      "trackTitle": "mai tenu  samjhaywa ki (Official Audio)",
+      "artist": "Featured Artist",
+      "durationMinutes": 4,
+      "roomName": "Chill",
+      "timestamp": 1787408090472
+    },
+    {
+      "id": "dp1l5cj",
+      "username": "User",
+      "trackTitle": "mai tenu  samjhaywa ki (Official Audio)",
+      "artist": "Featured Artist",
+      "durationMinutes": 4,
+      "roomName": "Chill",
+      "timestamp": 1787408094645
+    },
+    {
+      "id": "4cdqs77",
+      "username": "User",
+      "trackTitle": "mai tenu  samjhaywa ki (Official Audio)",
+      "artist": "Featured Artist",
+      "durationMinutes": 4,
+      "roomName": "Chill",
+      "timestamp": 1787408097825
+    },
+    {
+      "id": "s27rszc",
+      "username": "User",
+      "trackTitle": "mai tenu  samjhaywa ki (Official Audio)",
+      "artist": "Featured Artist",
+      "durationMinutes": 4,
+      "roomName": "Chill",
+      "timestamp": 1787408099573
+    },
+    {
+      "id": "7ty1iit",
+      "username": "User",
+      "trackTitle": "mai tenu  samjhaywa ki (Official Audio)",
+      "artist": "Featured Artist",
+      "durationMinutes": 4,
+      "roomName": "Chill",
+      "timestamp": 1787408099787
+    },
+    {
+      "id": "9z7h4k9",
+      "username": "User",
+      "trackTitle": "mai tenu  samjhaywa ki (Official Audio)",
+      "artist": "Featured Artist",
+      "durationMinutes": 4,
+      "roomName": "Chill",
+      "timestamp": 1787408136661
+    },
+    {
+      "id": "5dsscnj",
+      "username": "User",
+      "trackTitle": "Pal Pal Dil Ke Paas (Lyrics) | Blackmail | Kishore Kumar | Dharmendra & Rakhee | Lyrical Music",
+      "artist": "Lyrical Music",
+      "durationMinutes": 4,
+      "roomName": "chill",
+      "timestamp": 1787408816235
+    },
+    {
+      "id": "1h02ex8",
+      "username": "User",
+      "trackTitle": "Pal Pal Dil Ke Paas (Lyrics) | Blackmail | Kishore Kumar | Dharmendra & Rakhee | Lyrical Music",
+      "artist": "Lyrical Music",
+      "durationMinutes": 4,
+      "roomName": "chill",
+      "timestamp": 1787408816451
+    },
+    {
+      "id": "5yhyi9b",
+      "username": "User",
+      "trackTitle": "Pal Pal Dil Ke Paas - Title | Arijit Singh | Karan Deol, Sahher | Parampara, Sachet, Rishi Rich",
+      "artist": "Zee Music Company",
+      "durationMinutes": 4,
+      "roomName": "Chilll",
+      "timestamp": 1787409484197
+    },
+    {
+      "id": "azp69qh",
+      "username": "User",
+      "trackTitle": "Pal Pal Dil Ke Paas - Title | Arijit Singh | Karan Deol, Sahher | Parampara, Sachet, Rishi Rich",
+      "artist": "Zee Music Company",
+      "durationMinutes": 4,
+      "roomName": "Chilll",
+      "timestamp": 1787409484423
+    },
+    {
+      "id": "6xccw80",
+      "username": "User",
+      "trackTitle": "Pal Pal Dil Ke Paas - Title | Arijit Singh | Karan Deol, Sahher | Parampara, Sachet, Rishi Rich",
+      "artist": "Zee Music Company",
+      "durationMinutes": 4,
+      "roomName": "Chilll",
+      "timestamp": 1787409496583
+    },
+    {
+      "id": "h4j8yz4",
+      "username": "User",
+      "trackTitle": "Pal Pal Dil Ke Paas - Title | Arijit Singh | Karan Deol, Sahher | Parampara, Sachet, Rishi Rich",
+      "artist": "Zee Music Company",
+      "durationMinutes": 4,
+      "roomName": "Chilll",
+      "timestamp": 1787409502402
+    }
+  ],
+  "scheduledEvents": [],
+  "roomHistory": [
+    {
+      "username": "Ankky",
+      "roomId": "NMSPKQ",
+      "roomName": "AppnaAdda",
+      "joinedAt": 1787397994893
+    },
+    {
+      "username": "ankyy",
+      "roomId": "M8KY9J",
+      "roomName": "Apna Adda",
+      "joinedAt": 1787400675941
+    },
+    {
+      "username": "ankyy",
+      "roomId": "TPI5E6",
+      "roomName": "ChillZone",
+      "joinedAt": 1787407186207
+    },
+    {
+      "username": "ankyy",
+      "roomId": "CNFDM5",
+      "roomName": "Chill",
+      "joinedAt": 1787408134122
+    },
+    {
+      "username": "ankyy",
+      "roomId": "D03IA0",
+      "roomName": "Lo-fi Beats",
+      "hostUsername": "ankyy",
+      "joinedAt": 1787409358216
+    },
+    {
+      "username": "ankyy",
+      "roomId": "ZBFT30",
+      "roomName": "Chilll",
+      "hostUsername": "ankyy",
+      "joinedAt": 1787409467030
+    },
+    {
+      "username": "ankyy",
+      "roomId": "GO8UAV",
+      "roomName": "ChilxZone",
+      "hostUsername": "ankyy",
+      "joinedAt": 1787412304100
+    }
+  ]
+}

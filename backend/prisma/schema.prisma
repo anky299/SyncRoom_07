@@ -1,0 +1,148 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String        @id @default(uuid())
+  email         String        @unique
+  passwordHash  String
+  username      String        @unique
+  avatar        String        @default("#00F0FF")
+  bio           String?
+  optedOutStats Boolean       @default(false)
+  createdAt     DateTime      @default(now())
+
+  roomsCreated  Room[]        @relation("RoomHost")
+  participants  Participant[]
+  history       PlayHistory[]
+  friends1      Friend[]      @relation("User1Friends")
+  friends2      Friend[]      @relation("User2Friends")
+}
+
+model Room {
+  id                      String        @id @default(uuid())
+  roomCode                String        @unique // 6-char room code
+  roomName                String
+  hostId                  String?
+  host                    User?         @relation("RoomHost", fields: [hostId], references: [id], onDelete: SetNull)
+
+  // Settings
+  isPrivate               Boolean       @default(false)
+  passwordHash            String?
+  maxParticipants         Int           @default(10)
+  collaborativeMode       Boolean       @default(true)
+  enableChat              Boolean       @default(true)
+  enableReactions         Boolean       @default(true)
+  enableVoting            Boolean       @default(true)
+  allowEveryoneToAddSongs Boolean       @default(true)
+  allowEveryoneToSkip     Boolean       @default(false)
+  hostApprovalRequired    Boolean       @default(false)
+  autoPickNext            Boolean       @default(true)
+  theme                   String        @default("Ocean")
+
+  // Playback State
+  isPlaying               Boolean       @default(false)
+  position                Float         @default(0)
+  serverTimestamp         BigInt        @default(0)
+  currentTrackId          String?       @unique
+  currentTrack            Track?        @relation("CurrentTrack", fields: [currentTrackId], references: [id])
+
+  scheduledStartTime      DateTime?
+  isStarted               Boolean       @default(true)
+  createdAt               DateTime      @default(now())
+
+  participants            Participant[]
+  queue                   Track[]       @relation("RoomQueue")
+  chatHistory             ChatMessage[]
+}
+
+model Participant {
+  id          String        @id @default(uuid())
+  socketId    String?
+  roomId      String
+  room        Room          @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  username    String
+  isHost      Boolean       @default(false)
+  isOnline    Boolean       @default(true)
+  avatarUrl   String?
+  joinedAt    DateTime      @default(now())
+
+  chatMessages ChatMessage[]
+  votes        Vote[]
+}
+
+model Track {
+  id           String       @id @default(uuid())
+  title        String
+  artist       String
+  duration     Int          // in seconds
+  url          String
+  source       String       // 'upload' | 'spotify' | 'youtube'
+  spotifyUri   String?
+  youtubeId    String?
+  thumbnailUrl String?
+  lyricsUrl    String?
+  uploadedBy   String
+  voteCount    Int          @default(0)
+  approved     Boolean      @default(true)
+  position     Int          @default(0)
+
+  roomId       String?
+  room         Room?        @relation("RoomQueue", fields: [roomId], references: [id], onDelete: Cascade)
+  activeRoom   Room?        @relation("CurrentTrack")
+
+  votes        Vote[]
+  createdAt    DateTime     @default(now())
+}
+
+model Vote {
+  id            String      @id @default(uuid())
+  trackId       String
+  track         Track       @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  value         Int         // +1 or -1
+  createdAt     DateTime    @default(now())
+}
+
+model ChatMessage {
+  id            String       @id @default(uuid())
+  roomId        String
+  room          Room         @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  participantId String?
+  participant   Participant? @relation(fields: [participantId], references: [id], onDelete: SetNull)
+  username      String
+  message       String
+  timestamp     BigInt
+  createdAt     DateTime     @default(now())
+}
+
+model Friend {
+  id        String   @id @default(uuid())
+  user1Id   String
+  user1     User     @relation("User1Friends", fields: [user1Id], references: [id], onDelete: Cascade)
+  user2Id   String
+  user2     User     @relation("User2Friends", fields: [user2Id], references: [id], onDelete: Cascade)
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+}
+
+model PlayHistory {
+  id              String   @id @default(uuid())
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  username        String
+  trackTitle      String
+  artist          String
+  durationMinutes Int
+  roomName        String
+  timestamp       BigInt
+  createdAt       DateTime @default(now())
+}

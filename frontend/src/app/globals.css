@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+:root {
+  --theme-accent: #00F0FF;
+  --theme-gradient: linear-gradient(135deg, #00F0FF 0%, #0072FF 100%);
+  --theme-glow: rgba(0, 240, 255, 0.4);
+  --theme-bg: #060B19;
+  --theme-card-bg: rgba(10, 20, 45, 0.6);
+  --theme-border: rgba(0, 240, 255, 0.25);
+}
+
+body {
+  background-color: var(--theme-bg);
+  color: #F4F4F5;
+  font-family: var(--font-plus-jakarta-sans), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.4s ease;
+}
+
+.font-display {
+  font-family: var(--font-syne), sans-serif;
+}
+
+.font-mono-tech {
+  font-family: var(--font-jetbrains-mono), monospace;
+}
+
+/* Luminous Wordmark Text Glow */
+.luminous-wordmark-glow {
+  text-shadow: 0 0 20px var(--theme-glow), 0 0 40px var(--theme-glow);
+  transition: text-shadow 0.4s ease;
+}
+
+/* Theme Primary Button */
+.btn-theme-primary {
+  background: var(--theme-gradient);
+  color: #060B19;
+  font-weight: 800;
+  box-shadow: 0 0 20px var(--theme-glow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-theme-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 35px var(--theme-glow);
+}
+
+/* Theme Outline Button */
+.btn-theme-outline {
+  background: rgba(10, 20, 45, 0.6);
+  border: 1px solid var(--theme-border);
+  color: #FFFFFF;
+  transition: all 0.3s ease;
+}
+
+.btn-theme-outline:hover {
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 20px var(--theme-glow);
+}
+
+/* Theme Segmented Switcher Pill */
+.theme-pill-active {
+  background: rgba(10, 20, 45, 0.9);
+  border: 1.5px solid var(--theme-accent);
+  box-shadow: 0 0 15px var(--theme-glow);
+  color: #FFFFFF;
+}
+
+/* Bottom Glowing Audio Waveform Line Art */
+.bottom-waveform-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background-image: radial-gradient(ellipse at 50% 100%, var(--theme-glow) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--theme-border);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-accent);
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Keyboard Focus Outline */
+*:focus-visible {
+  outline: 2px solid var(--theme-accent) !important;
+  outline-offset: 2px !important;
+}
