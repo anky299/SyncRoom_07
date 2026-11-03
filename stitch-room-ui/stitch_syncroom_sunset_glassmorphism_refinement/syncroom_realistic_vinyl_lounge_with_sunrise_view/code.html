@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Golden Hour - Audiophile Listening Room</title>
+<!-- Tailwind CSS CDN with Forms & Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Fraunces & DM Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&amp;family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Fraunces', 'serif'],
+            sans: ['DM Sans', 'sans-serif'],
+          },
+          colors: {
+            amberGlow: '#f38e3a',
+            warmOrange: '#e66829',
+            deepEspresso: '#0c0704',
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Audiophile Engineering Styles -->
+<style data-purpose="custom-styling">
+    /* Handcrafted Walnut/Ebony Layered Plinth with Precision Bevel & Bronze Sub-chassis */
+    .audiophile-plinth {
+      background: 
+        radial-gradient(ellipse at 30% 20%, rgba(138, 77, 41, 0.45) 0%, rgba(42, 23, 14, 0.95) 55%, #120905 100%),
+        repeating-linear-gradient(112deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 6px),
+        linear-gradient(145deg, #2b170c 0%, #150b06 60%, #0a0503 100%);
+      box-shadow: 
+        0 40px 80px -15px rgba(0, 0, 0, 0.92),
+        0 20px 40px -10px rgba(0, 0, 0, 0.8),
+        inset 0 1px 1px rgba(255, 200, 140, 0.35),
+        inset 0 0 0 1.5px rgba(80, 48, 28, 0.8),
+        inset -1px -1px 3px rgba(0, 0, 0, 0.9),
+        0 0 50px rgba(235, 120, 45, 0.12);
+      border-radius: 36px;
+    }
+
+    /* Recessed Platter Well with Brushed Dark Bronze Flange */
+    .recessed-platter-well {
+      background: radial-gradient(circle at center, #050302 45%, #190f09 88%, #2d1b11 100%);
+      box-shadow: 
+        inset 0 12px 28px rgba(0, 0, 0, 0.96),
+        inset 0 0 12px rgba(0, 0, 0, 0.9),
+        0 1px 1px rgba(255, 255, 255, 0.1),
+        0 0 0 2px rgba(60, 36, 22, 0.7);
+    }
+
+    /* Heavy CNC Anodized Aluminum Platter with Strobe Dot Calibration Rim */
+    .audiophile-aluminum-platter {
+      background: 
+        repeating-conic-gradient(from 0deg at 50% 50%, #443c37 0deg, #1f1b19 4deg, #443c37 8deg),
+        radial-gradient(circle at center, #1b1613 60%, #2e2823 85%, #635b54 99%, #8a7e74 100%);
+      box-shadow: 
+        0 8px 24px rgba(0,0,0,0.85),
+        0 0 0 3px #181310,
+        0 0 0 4.5px rgba(214, 163, 115, 0.45);
+    }
+
+    /* Damped Antistatic Matte Silicone/Rubber Slipmat */
+    .damping-mat {
+      background: radial-gradient(circle at center, 
+        #110d0a 0%, 
+        #17120e 45%, 
+        #100b08 85%, 
+        #0b0806 100%
+      );
+      box-shadow: inset 0 0 16px rgba(0,0,0,0.92);
+    }
+
+    /* Ultra-Realistic Audiophile Obsidian Microgroove Record */
+    .vinyl-grooves-ultra {
+      background: radial-gradient(circle at center,
+        #1b130e 0%,
+        #0a0705 18%,
+        #1c140f 19%,
+        #070503 21%,
+        #17110c 24%,
+        #090604 26%,
+        #1a130e 30%,
+        #0b0805 32%,
+        #221811 36%,
+        #070504 38%,
+        #19120d 42%,
+        #0a0705 45%,
+        #211710 50%,
+        #070504 53%,
+        #1b130e 58%,
+        #0a0705 61%,
+        #231911 67%,
+        #060403 70%,
+        #1c130d 76%,
+        #080504 79%,
+        #221811 86%,
+        #070504 89%,
+        #1a120c 95%,
+        #050302 100%
+      );
+      box-shadow: 
+        inset 0 0 25px rgba(0,0,0,0.95), 
+        0 18px 45px rgba(0, 0, 0, 0.9), 
+        0 0 45px rgba(243, 142, 58, 0.2);
+    }
+
+    /* Holographic Dual Anisotropic Sunburst Light Sheen catching golden hour rays */
+    .vinyl-anisotropic-sheen {
+      background: conic-gradient(
+        from 28deg at 50% 50%,
+        rgba(255, 230, 200, 0.22) 0deg,
+        rgba(255, 170, 100, 0.04) 22deg,
+        rgba(255, 255, 255, 0) 55deg,
+        rgba(255, 180, 110, 0.08) 120deg,
+        rgba(255, 240, 215, 0.25) 180deg,
+        rgba(255, 160, 90, 0.04) 205deg,
+        rgba(255, 255, 255, 0) 240deg,
+        rgba(255, 190, 120, 0.08) 305deg,
+        rgba(255, 230, 200, 0.22) 360deg
+      );
+      mix-blend-mode: screen;
+    }
+
+    /* Precision Brushed Metal / Titanium Tonearm Stem */
+    .titanium-wand {
+      background: linear-gradient(90deg, #5c554e 0%, #d8d3cb 35%, #f4efe8 55%, #8f877e 85%, #383430 100%);
+      box-shadow: -2px 6px 14px rgba(0,0,0,0.7);
+    }
+
+    /* Solid Brass Isolation Foot & Screws */
+    .brass-accent {
+      background: radial-gradient(circle at 35% 30%, #ffe9b8 0%, #dca249 50%, #7e5518 90%, #462c08 100%);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.6);
+    }
+
+    /* Unified Glassmorphism Surface Style for Panels and Bar */
+    .lounge-glass {
+      background: rgba(18, 10, 6, 0.72);
+      backdrop-filter: blur(28px) saturate(150%);
+      -webkit-backdrop-filter: blur(28px) saturate(150%);
+      border: 1px solid rgba(255, 195, 140, 0.12);
+      box-shadow: 0 24px 50px -10px rgba(0, 0, 0, 0.82), 0 0 1px 1px rgba(255, 255, 255, 0.05) inset;
+    }
+
+    /* Vinyl Continuous Rotation */
+    @keyframes spinDisc {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin-vinyl {
+      animation: spinDisc 22s linear infinite;
+    }
+
+    /* Realistic Mechanical Tonearm Dynamics: Lift & Sweep */
+    #tonearmAssemblyInner {
+      transform-origin: 38px 38px;
+      transition: transform 1.25s cubic-bezier(0.34, 1.15, 0.64, 1), filter 0.8s ease;
+    }
+
+    /* Playing state (default) */
+    .is-playing #vinylDisc {
+      animation-play-state: running;
+    }
+    .is-playing #tonearmAssemblyInner {
+      transform: rotate(27.5deg) scale(1);
+      filter: drop-shadow(-8px 14px 12px rgba(0,0,0,0.7));
+    }
+    .is-playing #stylusLightGlow {
+      opacity: 1;
+      box-shadow: 0 0 12px 3px rgba(255, 175, 75, 0.9);
+    }
+    .is-playing #playIcon {
+      display: none;
+    }
+    .is-playing #pauseIcon {
+      display: block;
+    }
+
+    /* Paused state (Tonearm lifts up and parks in rest post) */
+    .is-paused #vinylDisc {
+      animation-play-state: paused;
+    }
+    .is-paused #tonearmAssemblyInner {
+      transform: rotate(-1.5deg) scale(1.02); /* slightly lifted in 3D perspective */
+      filter: drop-shadow(-14px 22px 18px rgba(0,0,0,0.85));
+    }
+    .is-paused #stylusLightGlow {
+      opacity: 0.15;
+      box-shadow: none;
+    }
+    .is-paused #playIcon {
+      display: block;
+    }
+    .is-paused #pauseIcon {
+      display: none;
+    }
+
+    /* Custom thin scrollbar */
+    .custom-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 4px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(243, 142, 58, 0.45);
+    }
+
+    /* Smooth Drawer Slide */
+    .panel-drawer {
+      transition: all 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .panel-collapsed {
+      max-width: 0 !important;
+      width: 0 !important;
+      opacity: 0 !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      border-width: 0 !important;
+      overflow: hidden !important;
+      pointer-events: none;
+      transform: scaleX(0.92) translateX(24px);
+    }
+    .panel-expanded {
+      opacity: 1 !important;
+      transform: scaleX(1) translateX(0);
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased text-stone-200 h-screen max-h-screen overflow-hidden select-none bg-[#0a0503] is-playing" id="roomApp">
+<!-- BEGIN: RoomRootContainer with Golden Sunrise Bedroom Retreat Image -->
+<div class="relative w-full h-full max-h-screen overflow-hidden flex flex-col justify-between p-3 md:p-5 box-border bg-cover bg-center bg-no-repeat transition-all duration-700" style="background-image: linear-gradient(to right, rgba(14, 8, 4, 0.82) 0%, rgba(12, 6, 3, 0.46) 50%, rgba(14, 8, 4, 0.85) 100%), linear-gradient(to top, rgba(9, 4, 2, 0.94) 0%, rgba(14, 8, 4, 0.25) 55%, rgba(10, 5, 2, 0.88) 100%), url('https://lh3.googleusercontent.com/aida-public/AB6AXuDAoFUGgFQ5ERdF_CZvVW4hkq3r7Jg2LnZGRRqEENDfQQhuHXUuc_1CN9kFaG-Nvqr5Csj_slTqahdbHTXj6eSdmD4L8DbtfHYIg16fweWmyHhgTI_kmRLMlV-6h4oPm163k7zKEx7EGrNC6N3ATbnUE_qvN3GlcufvWpARtOa99xpivQMd7Cr1C3gI7HVvRf2PrfMhtMVEROr0d12kaqBCbzrX9KaERDBmE-GHDrIxbVKyjfU0BMjqMrPiGwJeHKC9pAw');">
+<!-- Rich Golden Hour Sunset Vignette & Atmosphere Glow -->
+<div class="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_65%_35%,rgba(255,160,50,0.12)_0%,transparent_60%)]"></div>
+<div class="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(6,3,1,0.88)_100%)]"></div>
+<!-- BEGIN: DashboardLayout -->
+<div class="relative z-10 w-full h-full flex flex-row gap-4 lg:gap-5 items-stretch overflow-hidden">
+<!-- BEGIN: LeftNavigationSidebar -->
+<aside class="w-[72px] shrink-0 lounge-glass rounded-3xl p-2.5 flex flex-col justify-between items-center shadow-2xl z-20" data-purpose="sidebar-navigation">
+<!-- Top Nav Group -->
+<nav aria-label="Main Navigation" class="flex flex-col items-center gap-4 w-full pt-1" id="sidebarNav">
+<!-- Room Tab (Active in centered Home mode) -->
+<button class="nav-tab w-12 h-12 rounded-2xl bg-gradient-to-b from-[#4a2414] to-[#241209] border border-orange-500/50 text-amberGlow flex flex-col items-center justify-center gap-0.5 shadow-[0_0_18px_rgba(243,142,58,0.35)] transition-all duration-300 hover:border-orange-500/70" data-purpose="nav-item-room" data-view="home" id="navBtnRoom" title="Centered Room Mode">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+</svg>
+<span class="text-[10px] font-medium tracking-tight">Room</span>
+</button>
+<!-- Queue Tab -->
+<button class="nav-tab group flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-amber-100 transition-all duration-300 py-1.5 w-12 rounded-2xl" data-purpose="nav-item-queue" data-view="queue" id="navBtnQueue" title="Toggle Queue Panel">
+<svg class="w-5 h-5 group-hover:scale-105 transition" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M9 18V5l12-2v13"></path>
+<circle cx="6" cy="18" r="3"></circle>
+<circle cx="18" cy="16" r="3"></circle>
+</svg>
+<span class="text-[10px] font-normal tracking-tight text-stone-400 group-hover:text-stone-200">Queue</span>
+</button>
+<!-- Chat Tab -->
+<button class="nav-tab group flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-amber-100 transition-all duration-300 py-1.5 w-12 rounded-2xl" data-purpose="nav-item-chat" data-view="chat" id="navBtnChat" title="Toggle Chat Panel">
+<svg class="w-5 h-5 group-hover:scale-105 transition" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+</svg>
+<span class="text-[10px] font-normal tracking-tight text-stone-400 group-hover:text-stone-200">Chat</span>
+</button>
+<!-- DJ Booth Tab -->
+<button class="nav-tab group flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-amber-100 transition-all duration-300 py-1.5 w-12 rounded-2xl" data-purpose="nav-item-dj" data-view="both" id="navBtnDJ" title="Show Full Studio (Chat &amp; Queue)">
+<svg class="w-5 h-5 group-hover:scale-105 transition" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+<path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+</svg>
+<span class="text-[10px] font-normal tracking-tight text-stone-400 group-hover:text-stone-200 whitespace-nowrap">DJ Booth</span>
+</button>
+<!-- Settings Tab -->
+<button class="group flex flex-col items-center justify-center gap-1 text-stone-400 hover:text-amber-100 transition-all duration-300 py-1.5 w-12 rounded-2xl" data-purpose="nav-item-settings" id="navBtnSettings">
+<svg class="w-5 h-5 group-hover:scale-105 transition" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+<circle cx="12" cy="12" r="3"></circle>
+</svg>
+<span class="text-[10px] font-normal tracking-tight text-stone-400 group-hover:text-stone-200">Settings</span>
+</button>
+</nav>
+<!-- Bottom: Synced Latency Indicator -->
+<div class="flex flex-col items-center gap-1 pb-1.5" data-purpose="latency-indicator">
+<div class="relative flex items-center justify-center">
+<span class="animate-ping absolute inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400 opacity-60"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
+</div>
+<span class="text-[9px] font-normal text-stone-400 tracking-tight leading-none pt-0.5">Synced</span>
+<span class="text-[9px] font-medium text-stone-400 tracking-tight leading-none">28ms</span>
+</div>
+</aside>
+<!-- END: LeftNavigationSidebar -->
+<!-- BEGIN: CenterPlayerArea -->
+<main class="flex-1 flex flex-col justify-between items-center px-2 lg:px-4 py-1 overflow-hidden min-w-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]" data-purpose="center-player" id="centerPlayerContainer">
+<!-- Turntable Section: High-End Audiophile Plinth & Precision Assembly -->
+<div class="relative flex-1 w-full max-w-[560px] flex items-center justify-center min-h-[320px] py-1 select-none transition-transform duration-500" id="turntableInteractiveArea" title="Click turntable or controls to Play/Pause">
+<!-- Luxury Handcrafted Walnut & Brushed Dark Bronze Plinth Chassis -->
+<div class="relative w-[370px] h-[370px] sm:w-[420px] sm:h-[420px] audiophile-plinth p-5 sm:p-6 flex items-center justify-center group transition-all duration-300 cursor-pointer">
+<!-- Subtle Chassis Bevel & Wood Grain Sheen -->
+<div class="absolute inset-0 rounded-[36px] bg-gradient-to-br from-white/10 via-transparent to-black/70 pointer-events-none"></div>
+<!-- Precision Brass Isolation Bolts in the 4 corners -->
+<div class="absolute top-4 left-4 w-3.5 h-3.5 rounded-full brass-accent border border-black/40 flex items-center justify-center">
+<div class="w-1.5 h-[1.5px] bg-[#3a1d04] rotate-45"></div>
+</div>
+<div class="absolute top-4 right-4 w-3.5 h-3.5 rounded-full brass-accent border border-black/40 flex items-center justify-center">
+<div class="w-1.5 h-[1.5px] bg-[#3a1d04] -rotate-12"></div>
+</div>
+<div class="absolute bottom-4 left-4 w-3.5 h-3.5 rounded-full brass-accent border border-black/40 flex items-center justify-center">
+<div class="w-1.5 h-[1.5px] bg-[#3a1d04] rotate-12"></div>
+</div>
+<div class="absolute bottom-4 right-4 w-3.5 h-3.5 rounded-full brass-accent border border-black/40 flex items-center justify-center">
+<div class="w-1.5 h-[1.5px] bg-[#3a1d04] -rotate-45"></div>
+</div>
+<!-- Precision Engraved Badge: Pitch / Strobe Speed -->
+<div class="absolute bottom-5 left-6 flex items-center gap-2 pointer-events-none">
+<span class="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b] border border-black/50"></span>
+<span class="text-[9px] font-mono tracking-widest text-amber-200/70 font-semibold uppercase">33⅓ RPM • DIRECT DRIVE</span>
+</div>
+<!-- Recessed Platter Well with Deep Beveled Lip -->
+<div class="relative w-[295px] h-[295px] sm:w-[335px] sm:h-[335px] rounded-full recessed-platter-well flex items-center justify-center p-2">
+<!-- Heavy CNC Machined Strobe-Dotted Aluminum Platter -->
+<div class="relative w-full h-full rounded-full audiophile-aluminum-platter flex items-center justify-center p-2.5">
+<!-- Damped Antistatic Matte Rubber Mat -->
+<div class="relative w-full h-full rounded-full damping-mat flex items-center justify-center p-1">
+<!-- Deep Obsidian Vinyl Record Disc (Continuous Rotation) -->
+<div class="relative w-full h-full rounded-full vinyl-grooves-ultra flex items-center justify-center spin-vinyl" id="vinylDisc">
+<!-- Realistic Dual Anisotropic Sunburst Light Sheen -->
+<div class="absolute inset-0 rounded-full vinyl-anisotropic-sheen opacity-90 pointer-events-none"></div>
+<!-- Concentric Run-Out Spiral Grooves Layer -->
+<div class="absolute inset-0 rounded-full border-[18px] border-black/35 pointer-events-none"></div>
+<div class="absolute w-[140px] h-[140px] rounded-full border border-white/5 pointer-events-none"></div>
+<!-- Center Label Artwork & 45-RPM Brass Ring Adapter -->
+<div class="relative w-[116px] h-[116px] sm:w-[128px] sm:h-[128px] rounded-full overflow-hidden border-[3px] border-[#29170e] shadow-[inset_0_3px_12px_rgba(0,0,0,0.95)] flex items-center justify-center">
+<!-- Sunset Artwork Background -->
+<img alt="Vinyl Center Label Artwork" class="absolute inset-0 w-full h-full object-cover filter brightness-[1.08] contrast-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHjvTvp97UVToiKlozUbWEaz7_4JHgX4Ac5qoVwXrqiLfY8fpb4JuqDSW53mwn9cj7GZ0qhJP9-RqdnhmTVsHWBauMM0k9MESDoBm4OZy8RBH-WCO_RAQAxD0SY22HnYZV2IDZTbT3MKVI9m0-DfyZlRpBZiHWegCuj4-sn4VlbugwmKZA1nBQWQna3RvCH_z2iQQD6l7iCfzFRPSr2k0l1Ex7nXfHh3qFsSwLtQsjlWdzqsge3i04CPNGtj4CxKBAMQg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-black/40"></div>
+<!-- Micro Vinyl Track Label Details -->
+<div class="relative z-10 flex flex-col items-center justify-center pointer-events-none text-center px-1">
+<div class="w-6 h-6 rounded-full bg-black/50 backdrop-blur-md border border-amber-300/30 flex items-center justify-center text-amber-200 shadow-md mb-0.5">
+<svg class="w-3 h-3 fill-current" viewbox="0 0 24 24">
+<path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"></path>
+</svg>
+</div>
+<span class="text-[8.5px] font-serif text-amber-100 font-bold tracking-widest leading-none drop-shadow">GOLDEN HOUR</span>
+<span class="text-[7px] text-amber-300/90 font-mono tracking-wider leading-none mt-0.5">AUDIOPHILE 45RPM</span>
+</div>
+</div>
+<!-- Heavy Polished Brass Center Spindle & Clamp Base -->
+<div class="absolute w-4 h-4 rounded-full brass-accent shadow-[0_0_8px_rgba(0,0,0,0.9)] border border-amber-950 pointer-events-none z-20 flex items-center justify-center">
+<div class="w-1.5 h-1.5 rounded-full bg-stone-900 border border-amber-300/60"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- AUDIOPHILE MECHANICAL TONEARM ASSEMBLY -->
+<div class="absolute right-4 top-4 w-[120px] h-[270px] pointer-events-none z-30" id="tonearmContainer">
+<!-- Precision Gimbal Pivot Base with Antiskate & Cueing Tower -->
+<div class="absolute right-2 top-2 w-16 h-16 rounded-full bg-gradient-to-b from-[#2a1a10] via-[#150d08] to-[#080402] border-2 border-[#543b2a]/80 shadow-[0_12px_24px_rgba(0,0,0,0.85)] flex items-center justify-center">
+<!-- Brushed Metallic Gimbal Ring -->
+<div class="w-9 h-9 rounded-full border border-amber-500/50 bg-gradient-to-tr from-stone-400 via-stone-200 to-stone-600 shadow-inner flex items-center justify-center">
+<!-- Bearing Pin -->
+<div class="w-4 h-4 rounded-full bg-gradient-to-br from-stone-900 to-stone-700 border border-stone-400 flex items-center justify-center">
+<div class="w-1.5 h-1.5 rounded-full bg-amber-400"></div>
+</div>
+</div>
+<!-- Precision Cueing Lever Arm -->
+<div class="absolute -left-2.5 top-3 w-4 h-1.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 shadow-sm border border-stone-900"></div>
+<!-- Antiskate Weight Dial -->
+<div class="absolute bottom-1 right-2 w-3 h-3 rounded-full bg-stone-800 border border-amber-400/40"></div>
+</div>
+<!-- Animated Dynamic Tonearm Wand and Cartridge (Origin at pivot center) -->
+<div class="absolute right-[24px] top-[24px] w-[70px] h-[225px]" id="tonearmAssemblyInner">
+<!-- Heavy Stainless Calibrated Counterweight at Rear -->
+<div class="absolute -top-3.5 left-[11px] w-7 h-6 rounded-md bg-gradient-to-r from-stone-800 via-stone-300 to-stone-900 border border-stone-500 shadow-lg flex flex-col justify-center items-center">
+<div class="w-full h-[1px] bg-stone-950 my-0.5"></div>
+<div class="w-full h-[1px] bg-amber-400/60"></div>
+</div>
+<!-- Tapered Brushed Titanium & Carbon Fiber Tonearm Wand -->
+<div class="absolute top-2 left-6 w-2.5 h-48 titanium-wand rounded-full"></div>
+<!-- Precision Beveled Headshell & High-End Phono Cartridge (Stylus) -->
+<div class="absolute bottom-0.5 left-2 w-6 h-10 rounded-sm bg-gradient-to-b from-stone-200 via-stone-800 to-black border border-amber-500/60 transform rotate-14 shadow-2xl flex flex-col justify-between items-center py-1">
+<!-- Gold Cartridge Pins -->
+<div class="w-3 h-1 bg-amber-400 rounded-sm shadow-sm"></div>
+<!-- Stylus Cantilever & Diamond Tip Light -->
+<div class="w-2 h-2 rounded-full bg-amber-400 transition-all duration-300" id="stylusLightGlow"></div>
+</div>
+</div>
+<!-- Mechanical Arm Rest Cradle / Rest Post (Tonearm rests here when paused) -->
+<div class="absolute right-5 top-32 w-3.5 h-7 rounded-r-lg border-r-2 border-y-2 border-stone-500/60 bg-gradient-to-r from-stone-900 to-stone-800 shadow-md flex items-center justify-end pr-0.5">
+<div class="w-1.5 h-3 rounded-full bg-amber-500/50"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Track Info & Controls Container -->
+<div class="w-full max-w-xl flex flex-col gap-2.5 pb-1">
+<!-- Now Playing Card -->
+<div class="flex items-center justify-between px-2" data-purpose="track-info">
+<div class="flex items-center gap-3.5">
+<!-- Song Thumbnail -->
+<div class="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl overflow-hidden shadow-lg border border-orange-500/30 shrink-0 bg-stone-900 relative">
+<img alt="Golden Hour Album Art" class="w-full h-full object-cover object-left" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAZor5toWjUZAyhug52QFfEbwEU1BgxZFz4YGhEzVRuZRJp8h3R-oa03SMMJXQ4rh7PS_fTMf-6G0qXP3gOVfUTWj-bhvvf9BnzyNqcLIMB4K7__U1AkjTJ2qGXLeEMHMG5Oq9SsxNCSE7h-aYds-mTZkOFHpwnzHkNqDC6SMwgGdpVA5N0O1fCd5vn_bOjItMs7U6jd-YcaTKKMhlFVa8LB0AVVjKqSBx8Mh4jRhI2hw-3WoubzLGGvPxcqOEUniIpF8"/>
+<div class="absolute inset-0 bg-orange-950/10"></div>
+</div>
+<!-- Title & Artist -->
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<h2 class="font-serif text-xl sm:text-2xl text-stone-100 font-semibold tracking-wide leading-tight">Golden Hour</h2>
+<button aria-label="Favorite" class="text-stone-400 hover:text-amber-400 transition">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+<p class="text-xs text-stone-400 tracking-wider font-medium">JVKE</p>
+</div>
+</div>
+<!-- HOST Badge -->
+<div class="px-3 py-1 rounded-full border border-orange-500/40 bg-orange-950/40 text-[11px] font-semibold text-amber-500 tracking-widest uppercase shadow-[0_0_12px_rgba(243,142,58,0.15)]">
+HOST
+</div>
+</div>
+<!-- Scrubber Progress Bar -->
+<div class="flex items-center gap-3 px-2" data-purpose="scrubber">
+<span class="text-[11px] font-medium text-stone-400 w-7 text-right">0:42</span>
+<!-- Progress Slider Track -->
+<div class="relative flex-1 h-1.5 bg-stone-800/80 rounded-full flex items-center cursor-pointer group">
+<!-- Elapsed Track -->
+<div class="absolute left-0 top-0 bottom-0 w-[20%] bg-gradient-to-r from-orange-600 to-amber-500 rounded-full"></div>
+<!-- Scrubber Thumb -->
+<div class="absolute left-[20%] -translate-x-1/2 w-3.5 h-3.5 bg-stone-100 rounded-full shadow-[0_0_10px_#f97316] ring-2 ring-orange-500 transition-transform group-hover:scale-125"></div>
+</div>
+<span class="text-[11px] font-medium text-stone-400 w-7">3:28</span>
+</div>
+<!-- Playback Controls Bar -->
+<div class="flex items-center justify-between px-4 sm:px-6 pt-0.5" data-purpose="playback-controls">
+<!-- Shuffle -->
+<button aria-label="Shuffle" class="text-stone-400 hover:text-stone-200 transition">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"></path>
+</svg>
+</button>
+<!-- Previous -->
+<button aria-label="Previous Track" class="text-stone-400 hover:text-stone-200 transition">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24">
+<path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"></path>
+</svg>
+</button>
+<!-- Glowing Amber Play / Pause Center Interactive Button -->
+<button aria-label="Play/Pause" class="relative group p-0.5 cursor-pointer" id="playPauseButton">
+<!-- Ambient Orange Halo Glow -->
+<div class="absolute -inset-1.5 bg-amber-500/35 rounded-full blur-md group-hover:bg-amber-500/60 transition"></div>
+<!-- Play/Pause Button Disc -->
+<div class="relative w-12 h-12 rounded-full bg-gradient-to-b from-[#ffcf9e] to-[#f49342] text-stone-900 flex items-center justify-center shadow-lg shadow-black/60 hover:scale-105 active:scale-95 transition">
+<!-- Pause Icon (shown when playing) -->
+<svg class="w-5 h-5 fill-stone-950" id="pauseIcon" viewbox="0 0 24 24">
+<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path>
+</svg>
+<!-- Play Icon (shown when paused) -->
+<svg class="w-5 h-5 fill-stone-950 translate-x-0.5 hidden" id="playIcon" viewbox="0 0 24 24">
+<path d="M8 5v14l11-7z"></path>
+</svg>
+</div>
+</button>
+<!-- Next -->
+<button aria-label="Next Track" class="text-stone-400 hover:text-stone-200 transition">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24">
+<path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"></path>
+</svg>
+</button>
+<!-- Repeat -->
+<button aria-label="Repeat" class="text-stone-400 hover:text-stone-200 transition">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="m17 2 4 4-4 4"></path>
+<path d="M3 11v-1a4 4 0 0 1 4-4h14"></path>
+<path d="m7 22-4-4 4-4"></path>
+<path d="M21 13v1a4 4 0 0 1-4 4H3"></path>
+</svg>
+</button>
+<!-- Volume Slider Area -->
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+<path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+</svg>
+<div class="w-16 h-1 bg-stone-800 rounded-full relative flex items-center cursor-pointer">
+<div class="h-1 bg-gradient-to-r from-orange-500 to-amber-400 rounded-full w-[70%]"></div>
+<div class="w-2.5 h-2.5 bg-stone-100 rounded-full shadow-[0_0_6px_#f97316] -ml-1"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- END: CenterPlayerArea -->
+<!-- BEGIN: SidePanelsWrapper -->
+<div class="flex flex-row gap-4 lg:gap-5 items-stretch shrink-0 overflow-hidden" id="sidePanelsWrapper">
+<!-- BEGIN: ChatAndListenersPanel -->
+<section class="panel-drawer panel-collapsed w-72 lg:w-80 shrink-0 lounge-glass rounded-3xl p-5 flex flex-col justify-between shadow-2xl" data-purpose="chat-panel" id="panelChat">
+<!-- Header: Chat & Listeners Tab Navigation -->
+<div>
+<div class="flex items-center justify-between border-b border-white/5 pb-3">
+<div class="flex items-center gap-6">
+<button class="relative font-serif text-stone-100 text-sm font-semibold tracking-wide">
+Chat
+<!-- Active Orange Underline Indicator -->
+<span class="absolute -bottom-3 left-0 right-0 h-0.5 bg-orange-500 shadow-[0_0_8px_#f97316]"></span>
+</button>
+<button class="font-serif text-stone-400 hover:text-stone-200 text-sm font-medium tracking-wide transition">
+Listeners (1)
+</button>
+</div>
+<button aria-label="Close Chat" class="text-stone-500 hover:text-stone-300 transition" id="closeChatBtn" title="Close Panel">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+</button>
+</div>
+<!-- User Card / Host Badge in Chat -->
+<div class="mt-4 p-2.5 rounded-2xl bg-stone-900/60 border border-white/5 flex items-center gap-3">
+<!-- Avatar with orange initials -->
+<div class="relative w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-orange-700 text-stone-100 font-bold text-xs flex items-center justify-center shadow-md">
+GU
+<!-- Active Status Dot -->
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border border-stone-900"></span>
+</div>
+<!-- Handle & Crown -->
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="text-xs font-semibold text-stone-100 tracking-tight">@Guest</span>
+<!-- Orange Crown Icon -->
+<svg class="w-3 h-3 text-orange-400 fill-current" viewbox="0 0 24 24">
+<path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5m14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"></path>
+</svg>
+</div>
+<span class="text-[10px] text-stone-400">Room Host</span>
+</div>
+</div>
+</div>
+<!-- Scrollable Message Body -->
+<div class="flex-1 my-3 overflow-y-auto custom-scroll text-stone-400 text-xs flex flex-col justify-end gap-2 pr-1">
+<div class="text-[11px] text-stone-500 text-center py-2 italic font-serif">
+Welcome to the Golden Hour room ✨
+</div>
+</div>
+<!-- Anchored Message Input Bar -->
+<div class="relative mt-2">
+<input class="w-full bg-[#1b100a]/80 border border-white/10 rounded-xl px-3.5 py-2.5 pr-10 text-xs text-stone-200 placeholder-stone-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition" placeholder="Send a message..." type="text"/>
+<button aria-label="Emoji reactions" class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-amber-300 transition">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="12" cy="12" r="10"></circle>
+<path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+<line x1="9" x2="9.01" y1="9" y2="9"></line>
+<line x1="15" x2="15.01" y1="9" y2="9"></line>
+</svg>
+</button>
+</div>
+</section>
+<!-- END: ChatAndListenersPanel -->
+<!-- BEGIN: QueuePanel -->
+<section class="panel-drawer panel-collapsed w-72 lg:w-80 shrink-0 lounge-glass rounded-3xl p-5 flex flex-col justify-between shadow-2xl" data-purpose="queue-panel" id="panelQueue">
+<!-- Queue Header -->
+<div class="flex items-center justify-between border-b border-white/5 pb-3">
+<div class="flex items-baseline gap-1.5">
+<h2 class="font-serif text-stone-100 text-base font-semibold tracking-wide">Queue</h2>
+<span class="text-xs font-normal text-stone-400 font-sans">(4)</span>
+</div>
+<div class="flex items-center gap-2">
+<!-- Adjust / Filters Icon -->
+<button aria-label="Queue Settings" class="text-stone-400 hover:text-stone-200 transition">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<line x1="4" x2="4" y1="21" y2="14"></line>
+<line x1="4" x2="4" y1="10" y2="3"></line>
+<line x1="12" x2="12" y1="21" y2="12"></line>
+<line x1="12" x2="12" y1="8" y2="3"></line>
+<line x1="20" x2="20" y1="21" y2="16"></line>
+<line x1="20" x2="20" y1="12" y2="3"></line>
+<line x1="1" x2="7" y1="14" y2="14"></line>
+<line x1="9" x2="15" y1="8" y2="8"></line>
+<line x1="17" x2="23" y1="16" y2="16"></line>
+</svg>
+</button>
+<button aria-label="Close Queue" class="text-stone-500 hover:text-stone-300 transition" id="closeQueueBtn" title="Close Panel">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><line x1="18" x2="6" y1="6" y2="18"></line><line x1="6" x2="18" y1="6" y2="18"></line></svg>
+</button>
+</div>
+</div>
+<!-- Queued Tracks List -->
+<div class="flex-1 my-3 overflow-y-auto custom-scroll flex flex-col gap-2.5 pr-1" data-purpose="queue-list">
+<!-- Track 1: After Hours (Next) -->
+<div class="group relative p-2.5 rounded-2xl bg-stone-900/60 border border-orange-500/40 hover:border-orange-500/60 transition flex items-center justify-between gap-2.5 shadow-md shadow-black/40">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="text-stone-500 group-hover:text-stone-300 transition cursor-grab">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="9" cy="6" r="1"></circle><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="18" r="1"></circle><circle cx="15" cy="6" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="18" r="1"></circle></svg>
+</div>
+<div class="w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-white/10 relative shadow-sm">
+<img alt="After Hours" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzE6QmVekoiCARhJnoFx8hn9wYwSC4O4j2zG-_CHKeq8RlUO7ftwLUeO0k1m9WzcmKYcXkjY7YBiifoMA-6FrC77MhwDwlGDUFE9xwiyWsb9mWLiTRkypxoAo7K6maoQAimvJQ6MRikBoAQO-eg5r_w5mVEfw0a9TzdtYb-UhOjLCM_72H97isRXyXIx8oBdFVZtFlM8ZtJqqmBt2CcBg4Q2uQU5oTfo46KvbAvI4cho-YbOXokZJtWEmuMvOYvKV_7vU"/>
+<span class="absolute top-1 left-1 px-1 py-0.5 rounded bg-orange-500/90 text-stone-950 font-bold text-[8px] leading-none uppercase tracking-tighter">Next</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="text-xs font-medium text-stone-100 truncate tracking-tight">After Hours</span>
+<span class="text-[11px] text-stone-400 truncate">The Weeknd</span>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-orange-950/40 border border-orange-500/30 text-[9px] text-amber-500 font-medium">
+<svg class="w-2.5 h-2.5 text-orange-400 fill-current" viewbox="0 0 24 24"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5m14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"></path></svg>@Guest
+</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1.5 shrink-0">
+<span class="text-[11px] text-stone-400 font-mono">3:56</span>
+<button aria-label="Vote" class="text-stone-500 hover:text-amber-400 transition">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+</div>
+<!-- Track 2: Midnight City -->
+<div class="group relative p-2.5 rounded-2xl bg-[#1b100a]/80 border border-white/5 hover:border-white/10 transition flex items-center justify-between gap-2.5 shadow-md shadow-black/30">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="text-stone-500 group-hover:text-stone-300 transition cursor-grab">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="9" cy="6" r="1"></circle><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="18" r="1"></circle><circle cx="15" cy="6" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="18" r="1"></circle></svg>
+</div>
+<div class="w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-white/10 relative shadow-sm">
+<img alt="Midnight City" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADx6y230_o2Lrq5uXFy4eryc2x3KKT4o2RpfL9uACA44XKZeiF8ZbbzWmIPbdiNU0MV4kGFoZi1-vdYBIEbYDZVjKZJVg88GFclaWDIBVexrPUgR28cszLwJnOrS5gfUuxfLV3jerTdO8OiXlLN8K97Yuj2R2d5qUPU2tRyMHl4b2sFm3vFAEKdC9zvQg-nknCtyIqEo1FdHF91kgu6M2jZ-ky8gEWfRK5dpAYWfBlQmlFvzxA_Ni_8kWd-YkyvcR_E_M"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="text-xs font-medium text-stone-100 truncate tracking-tight">Midnight City</span>
+<span class="text-[11px] text-stone-400 truncate">M83</span>
+<div class="flex items-center gap-1 mt-0.5">
+<span class="text-[9px] text-stone-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">@Luna</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1.5 shrink-0">
+<span class="text-[11px] text-stone-400 font-mono">4:03</span>
+<button aria-label="Vote" class="text-stone-500 hover:text-amber-400 transition">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+</div>
+<!-- Track 3: Sundress -->
+<div class="group relative p-2.5 rounded-2xl bg-[#1b100a]/80 border border-white/5 hover:border-white/10 transition flex items-center justify-between gap-2.5 shadow-md shadow-black/30">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="text-stone-500 group-hover:text-stone-300 transition cursor-grab">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="9" cy="6" r="1"></circle><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="18" r="1"></circle><circle cx="15" cy="6" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="18" r="1"></circle></svg>
+</div>
+<div class="w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-white/10 relative shadow-sm">
+<img alt="Sundress" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1Cybhq8of1Lt6cBqlfpfKGPwf9G3zSuCH8c4jajcvBLyeaNf0Lx2tDgtvCtoDMLjS92qc0O0_pG2jOPVJxeOMmtmZ5ejrqg_UA3gWq2ZWzkMFe8zOBIrQRqeSl4EddhT_dmCa-f18UclMTVaKKbAgvZS0VMG_YP0sMGPVb59oYenh-sRiiSfRXfgw6QIE9wnpgYMlNoYB4-Aw5HPhk0ftmhgXBfGCZTsyAT8s68ULMKJ6viFanSlREtFQ-xeVXizPpJM"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="text-xs font-medium text-stone-100 truncate tracking-tight">Sundress</span>
+<span class="text-[11px] text-stone-400 truncate">A$AP Rocky</span>
+<div class="flex items-center gap-1 mt-0.5">
+<span class="text-[9px] text-stone-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">@Leo</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1.5 shrink-0">
+<span class="text-[11px] text-stone-400 font-mono">3:38</span>
+<button aria-label="Vote" class="text-stone-500 hover:text-amber-400 transition">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+</div>
+<!-- Track 4: Resonance -->
+<div class="group relative p-2.5 rounded-2xl bg-[#1b100a]/80 border border-white/5 hover:border-white/10 transition flex items-center justify-between gap-2.5 shadow-md shadow-black/30">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="text-stone-500 group-hover:text-stone-300 transition cursor-grab">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24"><circle cx="9" cy="6" r="1"></circle><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="18" r="1"></circle><circle cx="15" cy="6" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="18" r="1"></circle></svg>
+</div>
+<div class="w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-white/10 relative shadow-sm">
+<img alt="Resonance" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9glp39oKJngixZqpTipqjiKOMkk2ZOo-W3vDLuIyZRR_1b1yZmJCHWMYvFG2hEq91VDVzv4RAFkYBms2DbzL_695W0nYFbE6JkT01jJM9aIx_GxjDP2B_78TqeyEpvGAeEcVYHqlqA8r5EdIqKPRmdWEhp1bIBfbCxUrSZ-hjWVRhVbOai0tXFH6Cx7SU2Ec61TI9jyZ019th3bFAxEL8OiZcIMJpJRpr7Ht5tb1spoiRXWYdYo9zzI8-CQ9bkmrXLNA"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="text-xs font-medium text-stone-100 truncate tracking-tight">Resonance</span>
+<span class="text-[11px] text-stone-400 truncate">HOME</span>
+<div class="flex items-center gap-1 mt-0.5">
+<span class="text-[9px] text-stone-400 bg-white/5 px-1.5 py-0.5 rounded border border-white/5">@Kai</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-end gap-1.5 shrink-0">
+<span class="text-[11px] text-stone-400 font-mono">3:32</span>
+<button aria-label="Vote" class="text-stone-500 hover:text-amber-400 transition">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+</button>
+</div>
+</div>
+</div>
+<!-- Bottom: Large Sunset Orange '+ Add Song' Action Button with Split Chevron -->
+<div class="w-full">
+<div class="w-full rounded-2xl bg-gradient-to-r from-[#eb6c28] via-[#e25d1e] to-[#cc4f17] hover:brightness-110 active:brightness-95 transition shadow-[0_8px_25px_-4px_rgba(235,108,40,0.5)] flex items-stretch overflow-hidden cursor-pointer">
+<button class="flex-1 py-3 px-4 flex items-center justify-center gap-2 text-stone-900 font-semibold text-xs tracking-wide">
+<svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+<span class="">Add Song</span>
+</button>
+<div class="w-[1px] bg-black/10 my-2"></div>
+<button aria-label="More options" class="px-3 flex items-center justify-center text-stone-900 hover:bg-black/10 transition">
+<svg class="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</button>
+</div>
+</div>
+</section>
+<!-- END: QueuePanel -->
+</div>
+<!-- END: SidePanelsWrapper -->
+</div>
+<!-- END: DashboardLayout -->
+</div>
+<!-- END: RoomRootContainer -->
+<!-- Interactive State JavaScript: Turntable Controls & Responsive Dynamic Layout Shifting -->
+<script>
+  (function initListeningRoom() {
+    const app = document.getElementById('roomApp');
+    const playPauseBtn = document.getElementById('playPauseButton');
+    const turntableArea = document.getElementById('turntableInteractiveArea');
+
+    // Playback Toggle
+    function togglePlayback(e) {
+      if (e) e.stopPropagation();
+      if (app.classList.contains('is-playing')) {
+        app.classList.remove('is-playing');
+        app.classList.add('is-paused');
+      } else {
+        app.classList.remove('is-paused');
+        app.classList.add('is-playing');
+      }
+    }
+
+    if (playPauseBtn) playPauseBtn.addEventListener('click', togglePlayback);
+    if (turntableArea) turntableArea.addEventListener('click', togglePlayback);
+
+    // Sidebar View Navigation & Layout Shifting
+    const navBtnRoom = document.getElementById('navBtnRoom');
+    const navBtnQueue = document.getElementById('navBtnQueue');
+    const navBtnChat = document.getElementById('navBtnChat');
+    const navBtnDJ = document.getElementById('navBtnDJ');
+
+    const panelChat = document.getElementById('panelChat');
+    const panelQueue = document.getElementById('panelQueue');
+    const closeChatBtn = document.getElementById('closeChatBtn');
+    const closeQueueBtn = document.getElementById('closeQueueBtn');
+
+    const allNavButtons = [navBtnRoom, navBtnQueue, navBtnChat, navBtnDJ];
+
+    const activeNavClass = ['bg-gradient-to-b', 'from-[#4a2414]', 'to-[#241209]', 'border', 'border-orange-500/50', 'text-amberGlow', 'shadow-[0_0_18px_rgba(243,142,58,0.35)]'];
+    const inactiveNavClass = ['text-stone-400'];
+
+    function setNavButtonActive(targetBtn) {
+      allNavButtons.forEach(btn => {
+        if (!btn) return;
+        if (btn === targetBtn) {
+          btn.classList.add(...activeNavClass);
+          btn.classList.remove(...inactiveNavClass);
+        } else {
+          btn.classList.remove(...activeNavClass);
+          btn.classList.add(...inactiveNavClass);
+        }
+      });
+    }
+
+    function showPanels(showChat, showQueue) {
+      if (panelChat) {
+        if (showChat) {
+          panelChat.classList.remove('panel-collapsed');
+          panelChat.classList.add('panel-expanded');
+        } else {
+          panelChat.classList.remove('panel-expanded');
+          panelChat.classList.add('panel-collapsed');
+        }
+      }
+
+      if (panelQueue) {
+        if (showQueue) {
+          panelQueue.classList.remove('panel-collapsed');
+          panelQueue.classList.add('panel-expanded');
+        } else {
+          panelQueue.classList.remove('panel-expanded');
+          panelQueue.classList.add('panel-collapsed');
+        }
+      }
+    }
+
+    function applyState(view) {
+      if (view === 'home') {
+        showPanels(false, false);
+        setNavButtonActive(navBtnRoom);
+      } else if (view === 'queue') {
+        const isQueueOpen = panelQueue && panelQueue.classList.contains('panel-expanded');
+        if (isQueueOpen && (!panelChat || panelChat.classList.contains('panel-collapsed'))) {
+          applyState('home');
+          return;
+        }
+        showPanels(false, true);
+        setNavButtonActive(navBtnQueue);
+      } else if (view === 'chat') {
+        const isChatOpen = panelChat && panelChat.classList.contains('panel-expanded');
+        if (isChatOpen && (!panelQueue || panelQueue.classList.contains('panel-collapsed'))) {
+          applyState('home');
+          return;
+        }
+        showPanels(true, false);
+        setNavButtonActive(navBtnChat);
+      } else if (view === 'both') {
+        const bothOpen = panelChat && panelChat.classList.contains('panel-expanded') && panelQueue && panelQueue.classList.contains('panel-expanded');
+        if (bothOpen) {
+          applyState('home');
+          return;
+        }
+        showPanels(true, true);
+        setNavButtonActive(navBtnDJ);
+      }
+    }
+
+    if (navBtnRoom) navBtnRoom.addEventListener('click', () => applyState('home'));
+    if (navBtnQueue) navBtnQueue.addEventListener('click', () => applyState('queue'));
+    if (navBtnChat) navBtnChat.addEventListener('click', () => applyState('chat'));
+    if (navBtnDJ) navBtnDJ.addEventListener('click', () => applyState('both'));
+
+    if (closeChatBtn) {
+      closeChatBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (panelQueue && panelQueue.classList.contains('panel-expanded')) {
+          applyState('queue');
+        } else {
+          applyState('home');
+        }
+      });
+    }
+
+    if (closeQueueBtn) {
+      closeQueueBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (panelChat && panelChat.classList.contains('panel-expanded')) {
+          applyState('chat');
+        } else {
+          applyState('home');
+        }
+      });
+    }
+
+    // Initialize in centered Room state by default
+    applyState('home');
+  })();
+</script>
+</body></html>

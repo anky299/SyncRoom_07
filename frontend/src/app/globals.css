@@ -25,6 +25,10 @@ body {
   font-family: var(--font-jetbrains-mono), monospace;
 }
 
+.font-script {
+  font-family: var(--font-caveat), cursive, sans-serif;
+}
+
 /* Luminous Wordmark Text Glow */
 .luminous-wordmark-glow {
   text-shadow: 0 0 20px var(--theme-glow), 0 0 40px var(--theme-glow);
@@ -110,3 +114,652 @@ body {
   outline: 2px solid var(--theme-accent) !important;
   outline-offset: 2px !important;
 }
+
+/* ========================================================
+   CINEMATIC SUNSET ROOM DESIGN SYSTEM
+   Warm brown/black palette + amber/orange accent
+   ======================================================== */
+
+/* Font Utility Classes */
+.font-heading {
+  font-family: var(--font-fraunces), Georgia, serif;
+}
+
+.font-body {
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+/* Room Ambient Background */
+.room-ambient-bg {
+  background: linear-gradient(165deg, #0D0906 0%, #1A0F0A 25%, #1C1310 50%, #120C08 75%, #0A0705 100%);
+  min-height: 100vh;
+  position: relative;
+}
+
+.room-ambient-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 20%, rgba(201, 122, 47, 0.06) 0%, transparent 100%),
+    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(139, 69, 19, 0.04) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Warm Glass Card */
+.warm-glass-card {
+  background: rgba(26, 18, 12, 0.65);
+  border: 1px solid rgba(201, 122, 47, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.warm-glass-card-glow {
+  border-color: rgba(217, 152, 67, 0.35);
+  box-shadow: 0 0 30px rgba(201, 122, 47, 0.12), inset 0 1px 0 rgba(255, 200, 120, 0.05);
+}
+
+/* Warm Accent Button (replaces btn-solar-coral for room page) */
+.btn-warm-accent {
+  background: linear-gradient(135deg, #C97A2F 0%, #D99843 50%, #B86A24 100%);
+  color: #0D0906;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 4px 20px rgba(201, 122, 47, 0.35);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-warm-accent:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 30px rgba(201, 122, 47, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-warm-accent:active {
+  transform: scale(0.97);
+}
+
+.btn-warm-accent:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Amber text glow */
+.amber-text-glow {
+  text-shadow: 0 0 14px rgba(217, 152, 67, 0.4), 0 0 30px rgba(201, 122, 47, 0.15);
+}
+
+/* Vinyl Spin Animation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.turntable-vinyl-disc {
+  animation: spin 5s linear infinite;
+  will-change: transform;
+}
+
+/* Breathing Glow Animation */
+@keyframes breathing-glow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+.turntable-breathing-glow {
+  animation: breathing-glow 2.4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Gentle Bounce / Grooving Animation */
+@keyframes turntable-bounce {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-2.5px);
+  }
+}
+
+.turntable-bounce-active {
+  animation: turntable-bounce 3s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Sparkle Twinkle Animation */
+@keyframes sparkle-twinkle {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.6) rotate(0deg);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.1) rotate(45deg);
+  }
+}
+
+.plinth-sparkle {
+  animation: sparkle-twinkle 2s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Mini Equalizer Bar Animation */
+@keyframes eq-mini-bounce {
+  0%, 100% {
+    height: 3px;
+  }
+  50% {
+    height: var(--eq-mini-height, 12px);
+  }
+}
+
+.eq-mini-bar {
+  animation: eq-mini-bounce var(--eq-duration, 0.7s) ease-in-out infinite;
+  animation-delay: var(--eq-delay, 0s);
+  will-change: height;
+}
+
+/* Floating Note Drift Animation */
+@keyframes note-float {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.7) rotate(0deg);
+  }
+  20% {
+    opacity: 0.95;
+  }
+  80% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--note-drift-x, 24px), -75px) scale(1.15) rotate(var(--note-rot, 15deg));
+  }
+}
+
+.floating-musical-note {
+  animation: note-float var(--note-duration, 2.2s) ease-out forwards;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .turntable-vinyl-disc,
+  .turntable-breathing-glow,
+  .turntable-bounce-active,
+  .plinth-sparkle,
+  .eq-mini-bar,
+  .floating-musical-note {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* Turntable Plinth & Vinyl Styling */
+.turntable-plinth {
+  background: radial-gradient(circle at 30% 20%, #432818 0%, #2b180d 45%, #180e07 100%);
+  border: 1px solid rgba(217, 152, 67, 0.2);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.15), inset 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.vinyl-grooves {
+  background: repeating-radial-gradient(circle at 50% 50%, #1c1c1c 0px, #111111 2px, #1a1a1a 4px, #0d0d0d 6px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7), inset 0 0 15px rgba(0, 0, 0, 0.9);
+}
+
+.vinyl-sheen {
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%, rgba(255,255,255,0.06) 100%);
+}
+
+.avatar-glow-ring {
+  box-shadow: 0 0 16px rgba(245, 166, 35, 0.65), 0 0 4px rgba(245, 166, 35, 0.4);
+}
+
+.glass-panel-warm {
+  background: rgba(18, 12, 9, 0.78);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Equalizer Bar Animation */
+@keyframes eq-bounce {
+  0%, 100% { height: 4px; }
+  50% { height: var(--eq-max-height, 20px); }
+}
+
+.eq-bar {
+  width: 3px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, #D99843, #C97A2F);
+  animation: eq-bounce var(--eq-duration, 0.8s) ease-in-out infinite;
+  animation-delay: var(--eq-delay, 0s);
+}
+
+/* Ambient Shift (warm version) */
+@keyframes ambient-warm-shift {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
+}
+
+.animate-ambient-warm {
+  background-size: 200% 200%;
+  animation: ambient-warm-shift 25s ease infinite;
+}
+
+/* Scrollbar for warm theme */
+.warm-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.warm-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.warm-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(201, 122, 47, 0.25);
+  border-radius: 9999px;
+}
+
+.warm-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 122, 47, 0.5);
+}
+
+/* Queue item subtle hover */
+.queue-item-warm {
+  transition: all 0.2s ease;
+}
+
+.queue-item-warm:hover {
+  background: rgba(201, 122, 47, 0.06);
+  border-color: rgba(201, 122, 47, 0.2);
+}
+
+/* Progress bar custom style */
+input[type="range"].warm-range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 6px;
+}
+
+input[type="range"].warm-range::-webkit-slider-track {
+  height: 4px;
+  background: rgba(201, 122, 47, 0.15);
+  border-radius: 9999px;
+}
+
+input[type="range"].warm-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #D99843;
+  box-shadow: 0 0 10px rgba(217, 152, 67, 0.5);
+  margin-top: -5px;
+  border: 2px solid #0D0906;
+}
+
+input[type="range"].warm-range::-moz-range-track {
+  height: 4px;
+  background: rgba(201, 122, 47, 0.15);
+  border-radius: 9999px;
+  border: none;
+}
+
+input[type="range"].warm-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #D99843;
+  box-shadow: 0 0 10px rgba(217, 152, 67, 0.5);
+  border: 2px solid #0D0906;
+}
+
+input[type="range"].warm-range:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Warm input field */
+.warm-input {
+  background: rgba(13, 9, 6, 0.6);
+  border: 1px solid rgba(201, 122, 47, 0.15);
+  color: #F5E6D3;
+  transition: border-color 0.2s ease;
+}
+
+.warm-input:focus {
+  border-color: rgba(217, 152, 67, 0.4);
+  outline: none;
+}
+
+.warm-input::placeholder {
+  color: rgba(201, 160, 110, 0.35);
+}
+
+/* Subtle shimmer on the album art container */
+@keyframes art-glow-pulse {
+  0%, 100% { box-shadow: 0 0 40px rgba(201, 122, 47, 0.15), 0 0 80px rgba(139, 69, 19, 0.08); }
+  50% { box-shadow: 0 0 60px rgba(217, 152, 67, 0.25), 0 0 120px rgba(201, 122, 47, 0.12); }
+}
+
+.art-glow {
+  animation: art-glow-pulse 4s ease-in-out infinite;
+}
+
+/* Frosted Glass Look matching Target Sunset Visual Design */
+.frosted-glass-surface {
+  background: rgba(22, 14, 9, 0.62);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.12),
+    inset 0 0 24px rgba(232, 116, 59, 0.02),
+    0 24px 60px -12px rgba(0, 0, 0, 0.75);
+}
+
+/* Film Grain Texture */
+.film-grain-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* Soft Vignette */
+.vignette-overlay {
+  background: radial-gradient(circle at 45% 45%, transparent 35%, rgba(10, 6, 4, 0.6) 100%);
+  pointer-events: none;
+}
+
+/* Reduced Motion Support (exempts vinyl turntable & tonearm player animations) */
+@media (prefers-reduced-motion: reduce) {
+  *:not(.spin-vinyl):not(#vinylDisc):not(.tonearm-assembly-inner):not(#tonearmAssemblyInner):not(.stylus-light-glow):not(#stylusLightGlow) {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Marquee Scrolling Text */
+@keyframes marquee-scroll {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee-scroll 16s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Polished Interactive Elements */
+.interactive-btn {
+  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-btn:hover {
+  filter: brightness(1.12);
+}
+
+.interactive-btn:active {
+  transform: scale(0.97);
+}
+
+.interactive-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #E8743B;
+}
+
+/* Add Song Gradient Button */
+.btn-add-song-gradient {
+  background: linear-gradient(135deg, #E8743B 0%, #C75B2A 100%);
+  box-shadow: 0 4px 20px rgba(232, 116, 59, 0.35);
+  transition: all 180ms ease;
+}
+
+.btn-add-song-gradient:hover {
+  background: linear-gradient(135deg, #F29A5C 0%, #E8743B 100%);
+  box-shadow: 0 6px 25px rgba(232, 116, 59, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-add-song-gradient:active {
+  transform: scale(0.97);
+}
+
+/* Mobile bottom nav warm */
+.warm-mobile-nav {
+  background: rgba(13, 9, 6, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(201, 122, 47, 0.1);
+}
+
+/* ========================================================
+   STITCH AUDIOPHILE & GOLDEN HOUR DESIGN STYLES
+   ======================================================== */
+
+.lounge-glass {
+  background: rgba(18, 10, 6, 0.74);
+  backdrop-filter: blur(28px) saturate(150%);
+  -webkit-backdrop-filter: blur(28px) saturate(150%);
+  border: 1px solid rgba(255, 195, 140, 0.14);
+  box-shadow: 0 24px 50px -10px rgba(0, 0, 0, 0.82), 0 0 1px 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+/* Handcrafted Walnut/Ebony Layered Plinth with Precision Bevel & Bronze Sub-chassis */
+.audiophile-plinth {
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(138, 77, 41, 0.45) 0%, rgba(42, 23, 14, 0.95) 55%, #120905 100%),
+    repeating-linear-gradient(112deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 6px),
+    linear-gradient(145deg, #2b170c 0%, #150b06 60%, #0a0503 100%);
+  box-shadow: 
+    0 40px 80px -15px rgba(0, 0, 0, 0.92),
+    0 20px 40px -10px rgba(0, 0, 0, 0.8),
+    inset 0 1px 1px rgba(255, 200, 140, 0.35),
+    inset 0 0 0 1.5px rgba(80, 48, 28, 0.8),
+    inset -1px -1px 3px rgba(0, 0, 0, 0.9),
+    0 0 50px rgba(235, 120, 45, 0.12);
+  border-radius: 36px;
+}
+
+/* Recessed Platter Well with Brushed Dark Bronze Flange */
+.recessed-platter-well {
+  background: radial-gradient(circle at center, #050302 45%, #190f09 88%, #2d1b11 100%);
+  box-shadow: 
+    inset 0 12px 28px rgba(0, 0, 0, 0.96),
+    inset 0 0 12px rgba(0, 0, 0, 0.9),
+    0 1px 1px rgba(255, 255, 255, 0.1),
+    0 0 0 2px rgba(60, 36, 22, 0.7);
+}
+
+/* Heavy CNC Anodized Aluminum Platter with Strobe Dot Calibration Rim */
+.audiophile-aluminum-platter {
+  background: 
+    repeating-conic-gradient(from 0deg at 50% 50%, #443c37 0deg, #1f1b19 4deg, #443c37 8deg),
+    radial-gradient(circle at center, #1b1613 60%, #2e2823 85%, #635b54 99%, #8a7e74 100%);
+  box-shadow: 
+    0 8px 24px rgba(0,0,0,0.85),
+    0 0 0 3px #181310,
+    0 0 0 4.5px rgba(214, 163, 115, 0.45);
+}
+
+/* Damped Antistatic Matte Silicone/Rubber Slipmat */
+.damping-mat {
+  background: radial-gradient(circle at center, 
+    #110d0a 0%, 
+    #17120e 45%, 
+    #100b08 85%, 
+    #0b0806 100%
+  );
+  box-shadow: inset 0 0 16px rgba(0,0,0,0.92);
+}
+
+/* Ultra-Realistic Audiophile Obsidian Microgroove Record */
+.vinyl-grooves-ultra {
+  background: radial-gradient(circle at center,
+    #1b130e 0%,
+    #0a0705 18%,
+    #1c140f 19%,
+    #070503 21%,
+    #17110c 24%,
+    #090604 26%,
+    #1a130e 30%,
+    #0b0805 32%,
+    #221811 36%,
+    #070504 38%,
+    #19120d 42%,
+    #0a0705 45%,
+    #211710 50%,
+    #070504 53%,
+    #1b130e 58%,
+    #0a0705 61%,
+    #231911 67%,
+    #060403 70%,
+    #1c130d 76%,
+    #080504 79%,
+    #221811 86%,
+    #070504 89%,
+    #1a120c 95%,
+    #050302 100%
+  );
+  box-shadow: 
+    inset 0 0 25px rgba(0,0,0,0.95), 
+    0 18px 45px rgba(0, 0, 0, 0.9), 
+    0 0 45px rgba(243, 142, 58, 0.2);
+}
+
+/* Holographic Dual Anisotropic Sunburst Light Sheen */
+.vinyl-anisotropic-sheen {
+  background: conic-gradient(
+    from 28deg at 50% 50%,
+    rgba(255, 230, 200, 0.22) 0deg,
+    rgba(255, 170, 100, 0.04) 22deg,
+    rgba(255, 255, 255, 0) 55deg,
+    rgba(255, 180, 110, 0.08) 120deg,
+    rgba(255, 240, 215, 0.25) 180deg,
+    rgba(255, 160, 90, 0.04) 205deg,
+    rgba(255, 255, 255, 0) 240deg,
+    rgba(255, 190, 120, 0.08) 305deg,
+    rgba(255, 230, 200, 0.22) 360deg
+  );
+  mix-blend-mode: screen;
+}
+
+/* Precision Brushed Metal / Titanium Tonearm Stem */
+.titanium-wand {
+  background: linear-gradient(90deg, #5c554e 0%, #d8d3cb 35%, #f4efe8 55%, #8f877e 85%, #383430 100%);
+  box-shadow: -2px 6px 14px rgba(0,0,0,0.7);
+}
+
+/* Solid Brass Isolation Foot & Screws */
+.brass-accent {
+  background: radial-gradient(circle at 35% 30%, #ffe9b8 0%, #dca249 50%, #7e5518 90%, #462c08 100%);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.6);
+}
+
+/* Vinyl Continuous Rotation (33⅓ RPM = 1.8s per rev) */
+@keyframes vinyl-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.vinyl-record {
+  animation: vinyl-spin 1.8s linear infinite;
+  animation-play-state: paused;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.vinyl-record.is-playing {
+  animation-play-state: running;
+}
+
+.vinyl-record.is-paused {
+  animation-play-state: paused;
+}
+
+/* Realistic Mechanical Tonearm Dynamics: Lift & Sweep */
+.tonearm-assembly-inner {
+  transform-origin: 24px 24px;
+  will-change: transform, filter;
+  transition: transform 0.85s cubic-bezier(0.33, 1, 0.68, 1), filter 0.4s ease;
+}
+
+.tonearm-playing {
+  transform: rotate(26.5deg) translateY(0px) scale(1);
+  filter: drop-shadow(-4px 8px 10px rgba(0, 0, 0, 0.72));
+}
+
+.tonearm-paused {
+  transform: rotate(-2deg) translateY(0px) scale(1);
+  filter: drop-shadow(-8px 14px 14px rgba(0, 0, 0, 0.8));
+}
+
+.stylus-light-glow {
+  transition: opacity 0.3s ease, box-shadow 0.3s ease;
+}
+.stylus-light-active {
+  opacity: 1;
+  box-shadow: 0 0 10px 2px rgba(197, 164, 109, 0.85);
+}
+.stylus-light-inactive {
+  opacity: 0.2;
+  box-shadow: none;
+}
+
+/* Custom Thin Scrollbar */
+.custom-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 4px;
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(243, 142, 58, 0.45);
+}
+
+/* Smooth Drawer Slide for Side Panels */
+.panel-drawer {
+  transition: all 450ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.panel-collapsed {
+  max-width: 0 !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  border-width: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none;
+  transform: scaleX(0.92) translateX(24px);
+}
+.panel-expanded {
+  opacity: 1 !important;
+  transform: scaleX(1) translateX(0);
+  pointer-events: auto;
+}
+

@@ -15,12 +15,14 @@ export interface Track {
   voteCount: number; // accumulated up - down votes
   approved: boolean; // false if host approval is required and track has not been approved
   lyricsUrl?: string; // path to optional synced lyrics file (.LRC)
+  loop?: boolean; // track looping flag
 }
 
 export interface PlaybackState {
   isPlaying: boolean;
   position: number; // position in seconds
   serverTimestamp: number; // time when state was recorded
+  loopCurrentTrack?: boolean; // whether current track is looping
 }
 
 export interface Participant {
@@ -61,10 +63,12 @@ export interface Room {
   roomId: string;
   roomName: string;
   hostId: string;
+  creatorUsername?: string;
   settings: RoomSettings;
   currentTrack: Track | null;
   playback: PlaybackState;
   queue: Track[];
+  playedTracks?: Track[]; // history for previous track action
   participants: Participant[];
   chatHistory: ChatMessage[];
   theme?: string;

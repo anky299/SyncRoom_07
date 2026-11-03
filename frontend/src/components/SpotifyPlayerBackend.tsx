@@ -18,6 +18,8 @@ interface SpotifyPlayerBackendProps {
   volume?: number;
   onPlayerReady?: (deviceId: string) => void;
   onPlayerError?: (error: string) => void;
+  onEnded?: () => void;
+  onPlaybackStateChange?: (isPlaying: boolean) => void;
 }
 
 export default function SpotifyPlayerBackend({
@@ -28,6 +30,8 @@ export default function SpotifyPlayerBackend({
   volume = 0.8,
   onPlayerReady,
   onPlayerError,
+  onEnded,
+  onPlaybackStateChange,
 }: SpotifyPlayerBackendProps) {
   const playerRef = useRef<any>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
@@ -87,6 +91,19 @@ export default function SpotifyPlayerBackend({
       if (onPlayerError) onPlayerError('Spotify Premium account required for Web Playback SDK.');
     });
 
+    player.addListener('player_state_changed', (state: any) => {
+      if (!state) {
+        if (onPlaybackStateChange) onPlaybackStateChange(false);
+        return;
+      }
+      if (onPlaybackStateChange) {
+        onPlaybackStateChange(!state.paused);
+      }
+      if (state.paused && state.position === 0 && state.track_window?.previous_tracks?.length > 0) {
+        if (onEnded) onEnded();
+      }
+    });
+
     player.connect();
     playerRef.current = player;
 
@@ -124,10 +141,16 @@ export default function SpotifyPlayerBackend({
     syncSpotifyState();
   }, [isPlaying, spotifyUri, deviceId]);
 
+  const lastSoughtPosRef = useRef<number>(0);
+
   // Handle Seek Position Changes
   useEffect(() => {
     if (!playerRef.current) return;
-    playerRef.current.seek(Math.round(position * 1000));
+    const diff = Math.abs(position - lastSoughtPosRef.current);
+    if (diff > 1.5) {
+      lastSoughtPosRef.current = position;
+      playerRef.current.seek(Math.round(position * 1000)).catch(() => {});
+    }
   }, [position]);
 
   // Non-Premium or Not Connected Warning Banner

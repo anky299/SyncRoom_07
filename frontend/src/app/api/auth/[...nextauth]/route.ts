@@ -38,6 +38,7 @@ const handler = NextAuth({
         token.avatar = (user as any).avatar;
         token.bio = (user as any).bio;
         token.optedOutStats = (user as any).optedOutStats;
+        token.accessToken = (user as any).token;
       }
       // Dynamic profile update triggers
       if (trigger === 'update' && session) {
@@ -55,6 +56,7 @@ const handler = NextAuth({
         (session.user as any).avatar = token.avatar;
         (session.user as any).bio = token.bio;
         (session.user as any).optedOutStats = token.optedOutStats;
+        (session as any).accessToken = token.accessToken;
       }
       return session;
     },

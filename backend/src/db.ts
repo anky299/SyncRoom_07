@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { UserAccount, FriendRelationship, PlayHistoryEntry } from './types';
+import { UserAccount, FriendRelationship, PlayHistoryEntry, Track } from './types';
 import { prisma } from './prisma';
 
 export interface ScheduledEvent {
@@ -25,9 +25,17 @@ interface Schema {
   history: PlayHistoryEntry[];
   scheduledEvents: ScheduledEvent[];
   roomHistory: UserRoomHistory[];
+  uploadedTracks?: Track[];
 }
 
 const dbPath = path.join(__dirname, '..', 'database.json');
+
+function withTimeout<T>(promise: Promise<T>, ms = 300): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error('DB Timeout')), ms)),
+  ]);
+}
 
 class DatabaseService {
   private fallbackData: Schema = {
@@ -36,6 +44,7 @@ class DatabaseService {
     history: [],
     scheduledEvents: [],
     roomHistory: [],
+    uploadedTracks: [],
   };
 
   constructor() {
@@ -108,9 +117,9 @@ class DatabaseService {
   public async findUserByEmail(email: string): Promise<UserAccount | undefined> {
     const cleanEmail = (email || '').trim().toLowerCase();
     try {
-      const dbUser = await prisma.user.findUnique({
+      const dbUser = await withTimeout(prisma.user.findUnique({
         where: { email: cleanEmail },
-      });
+      }));
       if (dbUser) {
         return {
           id: dbUser.id,
@@ -124,7 +133,7 @@ class DatabaseService {
         };
       }
     } catch (e: any) {
-      console.log('[DB FIND EMAIL NOTICE]', e.message);
+      // Gracefully fall back to memory
     }
     return this.fallbackData.users.find((u) => u.email.toLowerCase() === cleanEmail);
   }
@@ -132,9 +141,9 @@ class DatabaseService {
   public async findUserByUsername(username: string): Promise<UserAccount | undefined> {
     const cleanUsername = (username || '').trim().toLowerCase();
     try {
-      const dbUser = await prisma.user.findFirst({
+      const dbUser = await withTimeout(prisma.user.findFirst({
         where: { username: { equals: cleanUsername, mode: 'insensitive' } },
-      });
+      }));
       if (dbUser) {
         return {
           id: dbUser.id,
@@ -148,7 +157,7 @@ class DatabaseService {
         };
       }
     } catch (e: any) {
-      console.log('[DB FIND USERNAME NOTICE]', e.message);
+      // Gracefully fall back to memory
     }
     return this.fallbackData.users.find((u) => u.username.toLowerCase() === cleanUsername);
   }
@@ -245,6 +254,22 @@ class DatabaseService {
     );
     this.saveJsonFallback();
   }
+
+  // --- Uploaded Tracks CRUD ---
+  public getUploadedTracks(username: string): Track[] {
+    if (!this.fallbackData.uploadedTracks) this.fallbackData.uploadedTracks = [];
+    return this.fallbackData.uploadedTracks.filter(
+      (t) => t.uploadedBy.toLowerCase() === username.toLowerCase() && t.source === 'upload'
+    );
+  }
+
+  public saveUploadedTrack(track: Track): Track {
+    if (!this.fallbackData.uploadedTracks) this.fallbackData.uploadedTracks = [];
+    this.fallbackData.uploadedTracks.unshift(track);
+    this.saveJsonFallback();
+    return track;
+  }
 }
 
 export const db = new DatabaseService();
+

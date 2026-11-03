@@ -19,9 +19,10 @@ const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET || '';
 const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || 'http://localhost:3000/api/auth/spotify/callback';
 const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || '';
 
-app.use(cors({ origin: '*', credentials: true }));
+const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
+app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Origin', typeof CORS_ORIGIN === 'string' ? CORS_ORIGIN : '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   if (req.method === 'OPTIONS') {
@@ -40,6 +41,7 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Serve uploaded files statically with explicit CORS header
 app.use('/uploads', cors({ origin: '*' }), express.static(uploadsDir));
+app.use('/audio', cors({ origin: '*' }), express.static(uploadsDir));
 
 // Multer storage configuration
 const storage = multer.diskStorage({
@@ -76,7 +78,71 @@ function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
+// Cryptographic token helpers & authentication middleware (HS256 HMAC-SHA256)
+const AUTH_SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'syncroom-super-secret-key-12345';
 
+interface AuthPayload {
+  userId: string;
+  username: string;
+  email?: string;
+  exp?: number;
+}
+
+interface AuthRequest extends express.Request {
+  auth?: AuthPayload;
+}
+
+function generateAuthToken(payload: { userId: string; username: string; email?: string }): string {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const exp = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60); // 30 days
+  const body = Buffer.from(JSON.stringify({ ...payload, exp })).toString('base64url');
+  const signature = crypto.createHmac('sha256', AUTH_SECRET).update(`${header}.${body}`).digest('base64url');
+  return `${header}.${body}.${signature}`;
+}
+
+function verifyAuthToken(token: string): AuthPayload | null {
+  if (!token || typeof token !== 'string') return null;
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  const [header, body, signature] = parts;
+  const expectedSig = crypto.createHmac('sha256', AUTH_SECRET).update(`${header}.${body}`).digest('base64url');
+  if (signature !== expectedSig) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf8'));
+    if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+const requireAuth = (req: AuthRequest, res: express.Response, next: express.NextFunction): void => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ error: 'Authentication required' });
+    return;
+  }
+  const token = authHeader.substring(7).trim();
+  const payload = verifyAuthToken(token);
+  if (!payload || !payload.username) {
+    res.status(401).json({ error: 'Invalid or expired authentication token' });
+    return;
+  }
+  req.auth = payload;
+  next();
+};
+
+const optionalAuth = (req: AuthRequest, _res: express.Response, next: express.NextFunction): void => {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7).trim();
+    const payload = verifyAuthToken(token);
+    if (payload && payload.username) {
+      req.auth = payload;
+    }
+  }
+  next();
+};
 
 // --- HTTP REST ENDPOINTS ---
 
@@ -113,9 +179,12 @@ app.post('/api/auth/register', async (req, res) => {
 
     await db.saveUser(newUser);
 
+    // Generate cryptographic access token
+    const token = generateAuthToken({ userId: newUser.id, username: newUser.username, email: newUser.email });
+
     // Omit password hash on response
     const { passwordHash, ...userRes } = newUser;
-    return res.status(200).json(userRes);
+    return res.status(200).json({ ...userRes, token });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Registration failed' });
   }
@@ -136,8 +205,11 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
+    // Generate cryptographic access token
+    const token = generateAuthToken({ userId: user.id, username: user.username, email: user.email });
+
     const { passwordHash, ...userRes } = user;
-    return res.status(200).json(userRes);
+    return res.status(200).json({ ...userRes, token });
   } catch (error: any) {
     return res.status(500).json({ error: error.message || 'Login failed' });
   }
@@ -187,7 +259,7 @@ app.get('/api/auth/spotify/callback', async (req, res) => {
 
 // SPOTIFY SEARCH ENDPOINT
 app.get('/api/spotify/search', async (req, res) => {
-  const query = req.query.q as string;
+  const query = (req.query.q as string || '').trim();
   if (!query) return res.json([]);
 
   try {
@@ -232,138 +304,187 @@ app.get('/api/spotify/search', async (req, res) => {
       ]);
     }
 
-    const searchRes = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`, {
+    const searchRes = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=15`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     const searchData = (await searchRes.json()) as any;
 
-    const tracks = (searchData.tracks?.items || []).map((item: any) => ({
-      id: item.id,
-      title: item.name,
-      artist: item.artists.map((a: any) => a.name).join(', '),
-      duration: Math.round(item.duration_ms / 1000),
-      url: item.uri,
-      source: 'spotify',
-      spotifyUri: item.uri,
-      thumbnailUrl: item.album?.images?.[0]?.url || '',
-    }));
+    const seenIds = new Set<string>();
+    const tracks: any[] = [];
+    for (const item of searchData.tracks?.items || []) {
+      if (!item.id || seenIds.has(item.id)) continue;
+      seenIds.add(item.id);
+      tracks.push({
+        id: item.id,
+        title: item.name,
+        artist: item.artists.map((a: any) => a.name).join(', '),
+        duration: Math.round(item.duration_ms / 1000),
+        url: item.uri,
+        source: 'spotify',
+        spotifyUri: item.uri,
+        thumbnailUrl: item.album?.images?.[0]?.url || '',
+      });
+    }
 
-    return res.json(tracks);
+    return res.json(tracks.slice(0, 10));
   } catch (e) {
     return res.json([]);
   }
 });
+
+// Helper for parsing YouTube duration text like "3:45" or "1:15:30"
+function parseYouTubeDuration(lengthText?: string): number {
+  if (!lengthText) return 210;
+  const parts = lengthText.split(':').map((p) => parseInt(p, 10));
+  if (parts.some((p) => isNaN(p))) return 210;
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  return 210;
+}
 
 // YOUTUBE SEARCH ENDPOINT (Production Multi-Tiered Pipeline)
 app.get('/api/youtube/search', async (req, res) => {
   const query = (req.query.q as string || '').trim();
   if (!query) return res.json([]);
 
+  const seenIds = new Set<string>();
+  const deduplicate = (items: any[]) => {
+    const unique: any[] = [];
+    for (const item of items) {
+      const vId = item.youtubeId || item.id;
+      if (vId && !seenIds.has(vId)) {
+        seenIds.add(vId);
+        unique.push({
+          id: vId,
+          title: item.title || query,
+          artist: item.artist || 'YouTube Artist',
+          duration: typeof item.duration === 'number' && !isNaN(item.duration) ? item.duration : 210,
+          url: vId,
+          source: 'youtube',
+          youtubeId: vId,
+          thumbnailUrl: item.thumbnailUrl || `https://i.ytimg.com/vi/${vId}/hqdefault.jpg`,
+        });
+      }
+    }
+    return unique;
+  };
+
   // Tier 1: Official YouTube Data API v3 (If YOUTUBE_API_KEY is configured in env)
-  try {
-    if (YOUTUBE_API_KEY) {
+  if (YOUTUBE_API_KEY) {
+    try {
       const searchRes = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query)}&key=${YOUTUBE_API_KEY}`
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=15&q=${encodeURIComponent(query)}&key=${YOUTUBE_API_KEY}`
       );
       if (searchRes.ok) {
         const searchData = (await searchRes.json()) as any;
-        const results = (searchData.items || []).map((item: any) => ({
-          id: item.id.videoId,
-          title: item.snippet.title,
-          artist: item.snippet.channelTitle,
-          duration: 240,
-          url: item.id.videoId,
-          source: 'youtube',
-          youtubeId: item.id.videoId,
-          thumbnailUrl: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.default?.url,
-        }));
+        const results = deduplicate(
+          (searchData.items || []).map((item: any) => ({
+            id: item.id?.videoId,
+            title: item.snippet?.title,
+            artist: item.snippet?.channelTitle,
+            duration: 210,
+            url: item.id?.videoId,
+            source: 'youtube',
+            youtubeId: item.id?.videoId,
+            thumbnailUrl: item.snippet?.thumbnails?.high?.url || item.snippet?.thumbnails?.default?.url,
+          }))
+        );
         if (results.length > 0) {
           console.log(`[YOUTUBE SEARCH - TIER 1 API] Found ${results.length} results for "${query}"`);
-          return res.json(results);
-        }
-      }
-    }
-  } catch (err: any) {
-    console.log('[YOUTUBE SEARCH - TIER 1 NOTICE]', err.message);
-  }
-
-  // Tier 2: Public Piped / Invidious API Mirror (Cloud-friendly JSON endpoint)
-  try {
-    const pipedRes = await fetch(`https://pipedapi.kavin.rocks/search?q=${encodeURIComponent(query)}&filter=videos`, {
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-    });
-    if (pipedRes.ok) {
-      const pipedData = (await pipedRes.json()) as any;
-      const items = pipedData.items || [];
-      const results: any[] = [];
-      for (const item of items) {
-        const vId = item.url ? item.url.replace('/watch?v=', '') : item.id;
-        if (vId) {
-          results.push({
-            id: vId,
-            title: item.title || query,
-            artist: item.uploaderName || 'YouTube Artist',
-            duration: item.duration || 210,
-            url: vId,
-            source: 'youtube',
-            youtubeId: vId,
-            thumbnailUrl: item.thumbnail || `https://i.ytimg.com/vi/${vId}/hqdefault.jpg`,
-          });
-        }
-      }
-      if (results.length > 0) {
-        console.log(`[YOUTUBE SEARCH - TIER 2 PIPED] Found ${results.length} results for "${query}"`);
-        return res.json(results.slice(0, 10));
-      }
-    }
-  } catch (err: any) {
-    console.log('[YOUTUBE SEARCH - TIER 2 NOTICE]', err.message);
-  }
-
-  // Tier 3: Mobile User-Agent HTML Extraction (Bypasses desktop bot-checks)
-  try {
-    const ytRes = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Linux; Android 12; gts7xl) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept-Language': 'en-US,en;q=0.9',
-      },
-    });
-    if (ytRes.ok) {
-      const html = await ytRes.text();
-      const match = html.match(/var ytInitialData = ({.*?});<\/script>/s) || html.match(/ytInitialData"\s*:\s*({.*?});/s);
-      if (match) {
-        const data = JSON.parse(match[1]);
-        const contents = data.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents || [];
-        const results: any[] = [];
-        for (const item of contents) {
-          if (item.videoRenderer && item.videoRenderer.videoId) {
-            const v = item.videoRenderer;
-            const vId = v.videoId;
-            results.push({
-              id: vId,
-              title: v.title?.runs?.[0]?.text || query,
-              artist: v.ownerText?.runs?.[0]?.text || 'YouTube Artist',
-              duration: 210,
-              url: vId,
-              source: 'youtube',
-              youtubeId: vId,
-              thumbnailUrl: v.thumbnail?.thumbnails?.[0]?.url || `https://i.ytimg.com/vi/${vId}/hqdefault.jpg`,
-            });
-          }
-        }
-        if (results.length > 0) {
-          console.log(`[YOUTUBE SEARCH - TIER 3 SCRAPER] Found ${results.length} results for "${query}"`);
           return res.json(results.slice(0, 10));
         }
       }
+    } catch (err: any) {
+      console.log('[YOUTUBE SEARCH - TIER 1 NOTICE]', err.message);
     }
-  } catch (err: any) {
-    console.log('[YOUTUBE SEARCH - TIER 3 NOTICE]', err.message);
   }
 
-  // Tier 4: Fallback Catalog for High Relevance Popular Matches
-  console.log(`[YOUTUBE SEARCH - TIER 4 FALLBACK] Returning verified track catalog for "${query}"`);
+  // Tier 2: Primary Web Scraper with Desktop Browser Headers (with 1 quick retry on socket reset)
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const ytRes = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept-Language': 'en-US,en;q=0.9',
+        },
+        signal: AbortSignal.timeout(10000),
+      });
+
+      if (ytRes.ok) {
+        const html = await ytRes.text();
+        const match =
+          html.match(/var ytInitialData = ({.*?});<\/script>/s) ||
+          html.match(/ytInitialData"\s*:\s*({.*?});/s) ||
+          html.match(/(?:window\["ytInitialData"\]|ytInitialData)\s*=\s*({.+?});/s);
+
+        let data: any = null;
+        if (match) {
+          try {
+            data = JSON.parse(match[1]);
+          } catch {}
+        }
+
+        if (data) {
+          const contents =
+            data.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents ||
+            data.contents?.sectionListRenderer?.contents ||
+            [];
+
+          const extracted: any[] = [];
+          for (const section of contents) {
+            const items = section.itemSectionRenderer?.contents || [];
+            for (const item of items) {
+              const v = item.videoRenderer || item.compactVideoRenderer;
+              if (v && v.videoId) {
+                const title =
+                  v.title?.runs?.map((r: any) => r.text).join('') ||
+                  v.title?.simpleText ||
+                  query;
+                const artist =
+                  v.ownerText?.runs?.map((r: any) => r.text).join('') ||
+                  v.shortBylineText?.runs?.map((r: any) => r.text).join('') ||
+                  'YouTube Artist';
+                const lengthText = v.lengthText?.simpleText || '';
+                const duration = parseYouTubeDuration(lengthText);
+                const thumb =
+                  v.thumbnail?.thumbnails?.slice(-1)[0]?.url ||
+                  `https://i.ytimg.com/vi/${v.videoId}/hqdefault.jpg`;
+
+                extracted.push({
+                  id: v.videoId,
+                  title,
+                  artist,
+                  duration,
+                  url: v.videoId,
+                  source: 'youtube',
+                  youtubeId: v.videoId,
+                  thumbnailUrl: thumb,
+                });
+              }
+            }
+          }
+
+          const results = deduplicate(extracted);
+          if (results.length > 0) {
+            console.log(`[YOUTUBE SEARCH - TIER 2 SCRAPER] Found ${results.length} results for "${query}" (attempt ${attempt + 1})`);
+            return res.json(results.slice(0, 10));
+          }
+        }
+      }
+    } catch (err: any) {
+      console.log(`[YOUTUBE SEARCH - TIER 2 NOTICE (attempt ${attempt + 1})]`, err.message);
+      if (attempt === 0) {
+        await new Promise((r) => setTimeout(r, 250));
+      }
+    }
+  }
+
+  // Tier 3: Fallback Catalog for High Relevance Popular Matches
+  // CRITICAL: NEVER return the full catalog if no items match!
+  // Return ONLY genuine matches, or empty array [] if no matches.
+  console.log(`[YOUTUBE SEARCH - TIER 3 FALLBACK] Checking verified track catalog for "${query}"`);
   const catalog = [
+    { id: 'fJ9rUzIMcZQ', title: 'Bohemian Rhapsody', artist: 'Queen', duration: 355, youtubeId: 'fJ9rUzIMcZQ' },
     { id: '4NRXx6U8ABQ', title: 'Blinding Lights', artist: 'The Weeknd', duration: 200, youtubeId: '4NRXx6U8ABQ' },
     { id: 'TUVcZfQe-Kw', title: 'Levitating', artist: 'Dua Lipa', duration: 203, youtubeId: 'TUVcZfQe-Kw' },
     { id: 'JGwWNGJdvx8', title: 'Shape of You', artist: 'Ed Sheeran', duration: 233, youtubeId: 'JGwWNGJdvx8' },
@@ -372,24 +493,28 @@ app.get('/api/youtube/search', async (req, res) => {
     { id: 'kTJczUoc5C0', title: 'Stay', artist: 'The Kid LAROI & Justin Bieber', duration: 141, youtubeId: 'kTJczUoc5C0' },
   ];
 
-  const matched = catalog.filter((item) => item.title.toLowerCase().includes(query.toLowerCase()) || item.artist.toLowerCase().includes(query.toLowerCase()));
-  const finalResults = matched.length > 0 ? matched : catalog;
+  const qLower = query.toLowerCase();
+  const matched = catalog.filter(
+    (item) => item.title.toLowerCase().includes(qLower) || item.artist.toLowerCase().includes(qLower)
+  );
 
   return res.json(
-    finalResults.map((item) => ({
-      ...item,
-      source: 'youtube',
-      url: item.youtubeId,
-      thumbnailUrl: `https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`,
-    }))
+    deduplicate(
+      matched.map((item) => ({
+        ...item,
+        source: 'youtube',
+        url: item.youtubeId,
+        thumbnailUrl: `https://i.ytimg.com/vi/${item.youtubeId}/hqdefault.jpg`,
+      }))
+    )
   );
 });
 
 // Single Track File Upload
-app.post('/api/tracks/upload', upload.fields([
+app.post('/api/tracks/upload', optionalAuth, upload.fields([
   { name: 'audio', maxCount: 1 },
   { name: 'lyrics', maxCount: 1 }
-]), (req, res) => {
+]), (req: AuthRequest, res) => {
   try {
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
     const audioFile = files['audio']?.[0];
@@ -402,19 +527,39 @@ app.post('/api/tracks/upload', upload.fields([
     const audioUrl = `/uploads/${audioFile.filename}`;
     const lyricsUrl = lyricsFile ? `/uploads/${lyricsFile.filename}` : undefined;
 
+    // Security Fix: uploadedBy MUST come from verified req.auth.username. Never trust req.body.uploadedBy.
+    const uploadedBy = req.auth?.username || 'Guest';
+
     const newTrack: Track = {
       id: Math.random().toString(36).substring(2, 9),
       title: path.parse(audioFile.originalname).name,
-      artist: (req.body.uploadedBy as string) || 'Guest',
+      artist: uploadedBy,
       duration: 180,
       url: audioUrl,
       source: 'upload',
-      uploadedBy: (req.body.uploadedBy as string) || 'Guest',
+      uploadedBy,
       votes: {},
       voteCount: 0,
       approved: true,
       lyricsUrl,
     };
+
+    // Save to in-memory JSON fallback
+    db.saveUploadedTrack(newTrack);
+
+    // Asynchronously persist uploaded track to database
+    prisma.track.create({
+      data: {
+        id: newTrack.id,
+        title: newTrack.title,
+        artist: newTrack.artist,
+        duration: newTrack.duration,
+        url: newTrack.url,
+        source: newTrack.source,
+        lyricsUrl: newTrack.lyricsUrl,
+        uploadedBy: newTrack.uploadedBy,
+      },
+    }).catch((e) => console.log('[PRISMA TRACK UPLOAD NOTICE]', e.message));
 
     return res.status(200).json(newTrack);
   } catch (error: any) {
@@ -422,10 +567,108 @@ app.post('/api/tracks/upload', upload.fields([
   }
 });
 
-// User Profile Stats Endpoint
-app.get('/api/stats', (req, res) => {
-  const username = req.query.username as string;
-  if (!username) return res.status(400).json({ error: 'Username required' });
+// Active Public Rooms Endpoint (Explore Rooms)
+app.get('/api/rooms', (_req, res) => {
+  try {
+    const activeRooms = roomManager.getActiveRooms();
+    return res.json(activeRooms);
+  } catch (err: any) {
+    return res.status(500).json({ error: 'Failed to fetch active rooms: ' + err.message });
+  }
+});
+
+// User Library Data Endpoint (Uploads & Listening History)
+app.get('/api/library', requireAuth, async (req: AuthRequest, res) => {
+  // Security Fix: Derive username strictly from verified cryptographic session (req.auth.username).
+  // Any query parameter ?username=... is completely ignored to prevent IDOR / unauthorized data exposure.
+  const username = req.auth!.username;
+
+  try {
+    // 1. Fetch User Uploads from Prisma / Fallback
+    let uploads: any[] = [];
+    try {
+      const dbTracks = await prisma.track.findMany({
+        where: {
+          uploadedBy: { equals: username, mode: 'insensitive' },
+          source: 'upload',
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+      uploads = dbTracks.map((t) => ({
+        id: t.id,
+        title: t.title,
+        artist: t.artist,
+        duration: t.duration,
+        url: t.url,
+        source: t.source,
+        thumbnailUrl: t.thumbnailUrl,
+        lyricsUrl: t.lyricsUrl,
+        uploadedBy: t.uploadedBy,
+        createdAt: t.createdAt.getTime(),
+      }));
+    } catch (e: any) {
+      console.log('[LIBRARY UPLOADS PRISMA NOTICE]', e.message);
+    }
+
+    if (uploads.length === 0) {
+      uploads = db.getUploadedTracks(username).map((t) => ({
+        id: t.id,
+        title: t.title,
+        artist: t.artist,
+        duration: t.duration,
+        url: t.url,
+        source: t.source,
+        thumbnailUrl: t.thumbnailUrl,
+        lyricsUrl: t.lyricsUrl,
+        uploadedBy: t.uploadedBy,
+        createdAt: Date.now(),
+      }));
+    }
+
+    // 2. Fetch User Recent Listening History from Prisma / Fallback
+    let recent: any[] = [];
+    try {
+      const dbHistory = await prisma.playHistory.findMany({
+        where: {
+          username: { equals: username, mode: 'insensitive' },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      });
+      recent = dbHistory.map((h) => ({
+        id: h.id,
+        trackTitle: h.trackTitle,
+        artist: h.artist,
+        durationMinutes: h.durationMinutes,
+        roomName: h.roomName,
+        timestamp: Number(h.timestamp),
+        createdAt: h.createdAt.getTime(),
+      }));
+    } catch (e: any) {
+      console.log('[LIBRARY HISTORY PRISMA NOTICE]', e.message);
+    }
+
+    if (recent.length === 0) {
+      // Fallback to in-memory JSON db history
+      recent = db.getHistory()
+        .filter((h) => h.username.toLowerCase() === username.toLowerCase())
+        .slice()
+        .reverse()
+        .slice(0, 50);
+    }
+
+    return res.json({
+      uploads,
+      recent,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: 'Failed to fetch library data: ' + err.message });
+  }
+});
+
+// User Profile Stats Endpoint (Private to authenticated user)
+app.get('/api/stats', requireAuth, (req: AuthRequest, res) => {
+  const username = req.auth!.username;
 
   const history = db.getHistory().filter((h) => h.username.toLowerCase() === username.toLowerCase());
   const roomHistory = db.getRoomHistory(username);
@@ -439,7 +682,7 @@ app.get('/api/stats', (req, res) => {
   });
 });
 
-// Platform Room Stats Endpoint
+// Platform Room Stats Endpoint (Public aggregate data)
 app.get('/api/rooms/stats', (_req, res) => {
   const users = db.getUsers();
   const totalHistory = db.getHistory();
@@ -449,18 +692,18 @@ app.get('/api/rooms/stats', (_req, res) => {
   });
 });
 
-// Friends list Endpoint
-app.get('/api/friends/list', (req, res) => {
-  const username = req.query.username as string;
-  if (!username) return res.status(400).json({ error: 'Username required' });
+// Friends list Endpoint (Private to authenticated user)
+app.get('/api/friends/list', requireAuth, (req: AuthRequest, res) => {
+  const username = req.auth!.username;
   return res.json(db.getFriendsForUser(username));
 });
 
-// Send Friend Request
-app.post('/api/friends/add', (req, res) => {
-  const { username, friendUsername } = req.body;
-  if (!username || !friendUsername) return res.status(400).json({ error: 'Both usernames required' });
-  if (username === friendUsername) return res.status(400).json({ error: 'Cannot add yourself' });
+// Send Friend Request (Authenticated)
+app.post('/api/friends/add', requireAuth, (req: AuthRequest, res) => {
+  const username = req.auth!.username;
+  const friendUsername = (req.body.friendUsername || '').trim();
+  if (!friendUsername) return res.status(400).json({ error: 'friendUsername required' });
+  if (username.toLowerCase() === friendUsername.toLowerCase()) return res.status(400).json({ error: 'Cannot add yourself' });
 
   try {
     const result = db.sendFriendRequest(username, friendUsername);
@@ -470,13 +713,13 @@ app.post('/api/friends/add', (req, res) => {
   }
 });
 
-// Delete Room Endpoint (Host Only)
-app.delete('/api/rooms/:code', async (req, res) => {
+// Delete Room Endpoint (Host Only - Cryptographically Verified via requireAuth)
+app.delete('/api/rooms/:code', requireAuth, async (req: AuthRequest, res) => {
   const code = (req.params.code || '').toUpperCase();
-  const username = ((req.query.username || req.body?.username || '') as string).trim();
+  const username = req.auth!.username;
 
-  if (!code || !username) {
-    return res.status(400).json({ error: 'Room code and username are required' });
+  if (!code) {
+    return res.status(400).json({ error: 'Room code is required' });
   }
 
   try {
@@ -500,16 +743,22 @@ app.delete('/api/rooms/:code', async (req, res) => {
     // Verify host authorization
     let isHost = false;
     if (roomInMemory) {
+      if (roomInMemory.creatorUsername && roomInMemory.creatorUsername.toLowerCase() === username.toLowerCase()) {
+        isHost = true;
+      }
       const hostP = roomInMemory.participants.find((p) => p.isHost);
       if (hostP && hostP.username.toLowerCase() === username.toLowerCase()) {
         isHost = true;
       }
-    }
-    if (!isHost && dbRoom) {
-      if (dbRoom.host?.username.toLowerCase() === username.toLowerCase()) {
+      if (roomInMemory.participants[0] && roomInMemory.participants[0].username.toLowerCase() === username.toLowerCase()) {
         isHost = true;
       }
-      const hostPart = dbRoom.participants.find((p: any) => p.isHost);
+    }
+    if (!isHost && dbRoom) {
+      if (dbRoom.host?.username && dbRoom.host.username.toLowerCase() === username.toLowerCase()) {
+        isHost = true;
+      }
+      const hostPart = dbRoom.participants?.find((p: any) => p.isHost);
       if (hostPart && hostPart.username.toLowerCase() === username.toLowerCase()) {
         isHost = true;
       }
@@ -631,101 +880,310 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Playback Control Update (Supports both playback-state-change and playback-update)
-  const handlePlaybackState = (roomId: string, isPlaying: boolean, position: number, callback?: Function) => {
+  // Helper: Verify authorization for socket actions
+  const checkRoomAuth = (roomId: string) => {
     const room = roomManager.getRoom(roomId);
-    if (room) {
-      room.playback = {
-        isPlaying,
-        position,
-        serverTimestamp: Date.now(),
-      };
-
-      if (isPlaying && room.currentTrack) {
-        db.addPlayHistory({
-          username: room.currentTrack.uploadedBy || 'Guest',
-          trackTitle: room.currentTrack.title,
-          artist: room.currentTrack.artist,
-          durationMinutes: Math.round((room.currentTrack.duration || 180) / 60),
-          roomName: room.roomName,
-          timestamp: Date.now(),
-        });
-      }
-
-      io.to(roomId).emit('playback-updated', room.playback);
-      io.to(roomId).emit('playback-sync', { playback: room.playback, updatedBy: socket.id });
-      io.to(roomId).emit('room-updated', room);
-      if (typeof callback === 'function') callback({ success: true });
-    } else if (typeof callback === 'function') {
-      callback({ success: false, error: 'Room not found' });
-    }
+    if (!room) return { room: null, participant: null, isHost: false, isCollab: false, canControlPlayback: false };
+    const participant = room.participants.find((p) => p.id === socket.id);
+    const isHost = participant ? participant.isHost : (room.hostId === socket.id);
+    const isCollab = !!room.settings.collaborativeMode;
+    const canControlPlayback = isHost || isCollab;
+    return { room, participant, isHost, isCollab, canControlPlayback };
   };
 
-  socket.on('playback-state-change', ({ roomId, isPlaying, position }, callback) => {
+  // Playback Control Update (Supports both playback-state-change and playback-update)
+  const handlePlaybackState = (roomId: string, isPlaying: boolean, position: number, callback?: Function) => {
+    const { room, canControlPlayback } = checkRoomAuth(roomId);
+    if (!room) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Room not found' });
+      return;
+    }
+    if (!canControlPlayback) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Unauthorized: Only the host can alter playback in non-collaborative mode.' });
+      return;
+    }
+
+    room.playback = {
+      isPlaying,
+      position,
+      serverTimestamp: Date.now(),
+      loopCurrentTrack: room.playback.loopCurrentTrack,
+    };
+
+    if (isPlaying && room.currentTrack) {
+      db.addPlayHistory({
+        username: room.currentTrack.uploadedBy || 'Guest',
+        trackTitle: room.currentTrack.title,
+        artist: room.currentTrack.artist,
+        durationMinutes: Math.round((room.currentTrack.duration || 180) / 60),
+        roomName: room.roomName,
+        timestamp: Date.now(),
+      });
+    }
+
+    io.to(roomId).emit('playback-updated', room.playback);
+    io.to(roomId).emit('playback-sync', { playback: room.playback, updatedBy: socket.id });
+    io.to(roomId).emit('room-updated', room);
+    if (typeof callback === 'function') callback({ success: true });
+  };
+
+  socket.on('playback-state-change', ({ roomId, isPlaying, position }: any = {}, callback?: Function) => {
     handlePlaybackState(roomId, isPlaying, position, callback);
   });
 
-  socket.on('playback-update', ({ roomId, state }, callback) => {
+  socket.on('playback-update', ({ roomId, state }: any = {}, callback?: Function) => {
     if (state) handlePlaybackState(roomId, state.isPlaying, state.position, callback);
   });
 
   // Queue Next / Skip (Supports both playback-next and queue-next)
-  const handleNextTrack = (roomId: string, callback?: Function) => {
-    const room = roomManager.getRoom(roomId);
-    if (room) {
-      if (room.settings.djBoothMode && room.djs && room.djs.length > 0) {
-        roomManager.advanceDjRotation(roomId);
-      }
-      if (room.queue.length > 0) {
-        room.currentTrack = room.queue.shift() || null;
-        room.playback = { isPlaying: true, position: 0, serverTimestamp: Date.now() };
-      } else {
-        room.currentTrack = null;
-        room.playback = { isPlaying: false, position: 0, serverTimestamp: Date.now() };
-      }
-      io.to(roomId).emit('room-updated', room);
-      if (typeof callback === 'function') callback({ success: true });
-    } else if (typeof callback === 'function') {
-      callback({ success: false, error: 'Room not found' });
+  const handleNextTrack = (roomId: string, isAutoEnd?: boolean, callback?: Function, shuffle?: boolean) => {
+    const { room, canControlPlayback } = checkRoomAuth(roomId);
+    if (!room) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Room not found' });
+      return;
     }
+
+    // If manual skip (not auto-end), enforce permission check
+    if (!isAutoEnd && !canControlPlayback) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Unauthorized: Only the host can skip tracks in non-collaborative mode.' });
+      return;
+    }
+
+    // Check if loop is active for current track
+    const isLooping = !!(room.playback.loopCurrentTrack || room.currentTrack?.loop);
+    if (isAutoEnd && isLooping && room.currentTrack) {
+      // Loop current track from position 0
+      room.playback = {
+        ...room.playback,
+        isPlaying: true,
+        position: 0,
+        serverTimestamp: Date.now(),
+      };
+      io.to(roomId).emit('playback-updated', room.playback);
+      io.to(roomId).emit('playback-sync', { playback: room.playback, updatedBy: socket.id });
+      io.to(roomId).emit('room-updated', room);
+      if (typeof callback === 'function') callback({ success: true, looped: true });
+      return;
+    }
+
+    // Record previous track in history
+    if (room.currentTrack) {
+      if (!room.playedTracks) room.playedTracks = [];
+      room.playedTracks.push(room.currentTrack);
+      if (room.playedTracks.length > 50) room.playedTracks.shift();
+    }
+
+    if (room.settings.djBoothMode && room.djs && room.djs.length > 0) {
+      roomManager.advanceDjRotation(roomId);
+    }
+
+    // Pick track from queue (random if shuffle is requested, otherwise first approved)
+    const approvedIndices = room.queue
+      .map((t, idx) => (t.approved ? idx : -1))
+      .filter((idx) => idx !== -1);
+
+    if (approvedIndices.length > 0) {
+      const chosenIndex = shuffle
+        ? approvedIndices[Math.floor(Math.random() * approvedIndices.length)]
+        : approvedIndices[0];
+      const [nextTrack] = room.queue.splice(chosenIndex, 1);
+      room.currentTrack = nextTrack;
+      room.playback = {
+        isPlaying: true,
+        position: 0,
+        serverTimestamp: Date.now(),
+        loopCurrentTrack: !!nextTrack.loop,
+      };
+    } else {
+      room.currentTrack = null;
+      room.playback = {
+        isPlaying: false,
+        position: 0,
+        serverTimestamp: Date.now(),
+        loopCurrentTrack: false,
+      };
+    }
+
+    io.to(roomId).emit('playback-updated', room.playback);
+    io.to(roomId).emit('playback-sync', { playback: room.playback, updatedBy: socket.id });
+    io.to(roomId).emit('room-updated', room);
+    if (typeof callback === 'function') callback({ success: true });
   };
 
-  socket.on('playback-next', ({ roomId }, callback) => handleNextTrack(roomId, callback));
-  socket.on('queue-next', ({ roomId }, callback) => handleNextTrack(roomId, callback));
+  socket.on('playback-next', ({ roomId, isAutoEnd, shuffle }: any = {}, callback?: Function) => handleNextTrack(roomId, isAutoEnd, callback, shuffle));
+  socket.on('queue-next', ({ roomId, isAutoEnd, shuffle }: any = {}, callback?: Function) => handleNextTrack(roomId, isAutoEnd, callback, shuffle));
 
-  // Queue Add
-  socket.on('queue-add', ({ roomId, track }, callback) => {
-    const room = roomManager.getRoom(roomId);
-    if (room) {
-      if (!room.currentTrack) {
-        room.currentTrack = track;
-        room.playback = { isPlaying: true, position: 0, serverTimestamp: Date.now() };
-      } else {
-        room.queue.push(track);
+  // Previous Track
+  const handlePreviousTrack = (roomId: string, currentPosition?: number, callback?: Function) => {
+    const { room, canControlPlayback } = checkRoomAuth(roomId);
+    if (!room) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Room not found' });
+      return;
+    }
+    if (!canControlPlayback) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Unauthorized: Only the host can navigate tracks in non-collaborative mode.' });
+      return;
+    }
+
+    const serverTimeNow = Date.now();
+    const elapsedSecs = room.playback.isPlaying
+      ? Math.max(0, (serverTimeNow - room.playback.serverTimestamp) / 1000)
+      : 0;
+    const effectivePos = typeof currentPosition === 'number'
+      ? currentPosition
+      : (room.playback.position || 0) + elapsedSecs;
+
+    // If current position > 3s or no history, restart current track from position 0
+    if (effectivePos > 3 || !room.playedTracks || room.playedTracks.length === 0) {
+      room.playback = {
+        ...room.playback,
+        isPlaying: true,
+        position: 0,
+        serverTimestamp: Date.now(),
+      };
+    } else {
+      // Move to previous track
+      const prevTrack = room.playedTracks.pop()!;
+      if (room.currentTrack) {
+        room.queue.unshift(room.currentTrack);
       }
+      room.currentTrack = prevTrack;
+      room.playback = {
+        isPlaying: true,
+        position: 0,
+        serverTimestamp: Date.now(),
+        loopCurrentTrack: !!prevTrack.loop,
+      };
+    }
+
+    io.to(roomId).emit('playback-updated', room.playback);
+    io.to(roomId).emit('playback-sync', { playback: room.playback, updatedBy: socket.id });
+    io.to(roomId).emit('room-updated', room);
+    if (typeof callback === 'function') callback({ success: true });
+  };
+
+  socket.on('playback-prev', ({ roomId, currentPosition }: any = {}, callback?: Function) => handlePreviousTrack(roomId, currentPosition, callback));
+  socket.on('queue-prev', ({ roomId, currentPosition }: any = {}, callback?: Function) => handlePreviousTrack(roomId, currentPosition, callback));
+
+  // Playback Loop Toggle (Current Track)
+  socket.on('playback-loop', ({ roomId, loop }: any = {}, callback?: Function) => {
+    const { room, canControlPlayback } = checkRoomAuth(roomId);
+    if (!room) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Room not found' });
+      return;
+    }
+    if (!canControlPlayback) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Unauthorized: Only the host can toggle loop in non-collaborative mode.' });
+      return;
+    }
+
+    const newLoop = typeof loop === 'boolean' ? loop : !room.playback.loopCurrentTrack;
+    room.playback.loopCurrentTrack = newLoop;
+    if (room.currentTrack) {
+      room.currentTrack.loop = newLoop;
+    }
+
+    io.to(roomId).emit('playback-updated', room.playback);
+    io.to(roomId).emit('room-updated', room);
+    if (typeof callback === 'function') callback({ success: true, loopCurrentTrack: newLoop });
+  });
+
+  // Queue Item Loop Toggle
+  socket.on('queue-loop-toggle', ({ roomId, trackId }: any = {}, callback?: Function) => {
+    const { room, canControlPlayback } = checkRoomAuth(roomId);
+    if (!room) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Room not found' });
+      return;
+    }
+    if (!canControlPlayback) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Unauthorized: Only authorized members can toggle loop on queue items.' });
+      return;
+    }
+
+    let updatedLoop: boolean | undefined;
+    const queueTrack = room.queue.find((t) => t.id === trackId);
+    if (queueTrack) {
+      queueTrack.loop = !queueTrack.loop;
+      updatedLoop = queueTrack.loop;
+    } else if (room.currentTrack && room.currentTrack.id === trackId) {
+      room.currentTrack.loop = !room.currentTrack.loop;
+      room.playback.loopCurrentTrack = room.currentTrack.loop;
+      updatedLoop = room.currentTrack.loop;
+      io.to(roomId).emit('playback-updated', room.playback);
+    }
+
+    if (updatedLoop !== undefined) {
       io.to(roomId).emit('room-updated', room);
-      if (typeof callback === 'function') callback({ success: true });
-    } else if (typeof callback === 'function') {
-      callback({ success: false, error: 'Room not found' });
+      if (typeof callback === 'function') callback({ success: true, loop: updatedLoop });
+    } else {
+      if (typeof callback === 'function') callback({ success: false, error: 'Track not found' });
     }
   });
 
+  // Queue Add
+  socket.on('queue-add', ({ roomId, track }: any = {}, callback?: Function) => {
+    const { room, isHost, isCollab } = checkRoomAuth(roomId);
+    if (!room) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Room not found' });
+      return;
+    }
+
+    // Direct add vs Request:
+    // In collaborative mode, tracks are approved directly unless hostApprovalRequired is set.
+    // In non-collaborative mode, only the host can add directly; non-host submissions are song requests (approved: false).
+    const isDirectAdd = isHost || (isCollab && !room.settings.hostApprovalRequired);
+    track.approved = isDirectAdd;
+
+    if (isDirectAdd && !room.currentTrack) {
+      room.currentTrack = track;
+      room.playback = {
+        isPlaying: true,
+        position: 0,
+        serverTimestamp: Date.now(),
+        loopCurrentTrack: !!track.loop,
+      };
+      io.to(roomId).emit('playback-updated', room.playback);
+      io.to(roomId).emit('playback-sync', { playback: room.playback, updatedBy: socket.id });
+    } else {
+      room.queue.push(track);
+    }
+
+    io.to(roomId).emit('room-updated', room);
+    if (typeof callback === 'function') callback({ success: true, approved: track.approved });
+  });
+
   // Queue Update
-  socket.on('queue-update', ({ roomId, queue }) => {
-    const room = roomManager.getRoom(roomId);
-    if (room) {
+  socket.on('queue-update', ({ roomId, queue }: any = {}, callback?: Function) => {
+    const { room, isHost } = checkRoomAuth(roomId);
+    if (room && isHost) {
       room.queue = queue;
       io.to(roomId).emit('room-updated', room);
+      if (typeof callback === 'function') callback({ success: true });
+    } else if (typeof callback === 'function') {
+      callback({ success: false, error: 'Unauthorized or room not found' });
     }
   });
 
   // Queue Remove
-  socket.on('queue-remove', ({ roomId, trackId }) => {
-    const room = roomManager.getRoom(roomId);
-    if (room) {
-      room.queue = room.queue.filter((t) => t.id !== trackId);
-      io.to(roomId).emit('room-updated', room);
+  socket.on('queue-remove', ({ roomId, trackId }: any = {}, callback?: Function) => {
+    const { room, isHost, isCollab, participant } = checkRoomAuth(roomId);
+    if (!room) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Room not found' });
+      return;
     }
+
+    const track = room.queue.find((t) => t.id === trackId);
+    const isOwner = track && participant && track.uploadedBy?.toLowerCase() === participant.username?.toLowerCase();
+
+    // Host can remove anything; in collaborative mode members can remove; or track owner can remove own track
+    if (!isHost && !isCollab && !isOwner) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Unauthorized: Only the host can remove tracks from queue in non-collaborative mode.' });
+      return;
+    }
+
+    room.queue = room.queue.filter((t) => t.id !== trackId);
+    io.to(roomId).emit('room-updated', room);
+    if (typeof callback === 'function') callback({ success: true });
   });
 
   // Track Vote (Supports queue-vote & vote-track)
@@ -751,19 +1209,98 @@ io.on('connection', (socket) => {
     }
   };
 
-  socket.on('queue-vote', ({ roomId, trackId, voteType, username }) => handleVote(roomId, trackId, voteType, username));
-  socket.on('vote-track', ({ roomId, trackId, voteType, username }) => handleVote(roomId, trackId, voteType, username));
+  socket.on('queue-vote', ({ roomId, trackId, voteType, username }: any = {}) => handleVote(roomId, trackId, voteType, username));
+  socket.on('vote-track', ({ roomId, trackId, voteType, username }: any = {}) => handleVote(roomId, trackId, voteType, username));
 
-  // Track Approve
-  socket.on('track-approve', ({ roomId, trackId }) => {
-    const room = roomManager.getRoom(roomId);
-    if (room) {
-      const track = room.queue.find((t) => t.id === trackId);
-      if (track) {
-        track.approved = true;
-        io.to(roomId).emit('room-updated', room);
-      }
+  // Track Approve (Host only)
+  socket.on('track-approve', ({ roomId, trackId }: any = {}, callback?: Function) => {
+    const { room, isHost } = checkRoomAuth(roomId);
+    if (!room) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Room not found' });
+      return;
     }
+    if (!isHost) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Unauthorized: Only the host can approve song requests.' });
+      return;
+    }
+
+    const track = room.queue.find((t) => t.id === trackId);
+    if (track) {
+      track.approved = true;
+      if (!room.currentTrack) {
+        room.queue = room.queue.filter((t) => t.id !== trackId);
+        room.currentTrack = track;
+        room.playback = {
+          isPlaying: true,
+          position: 0,
+          serverTimestamp: Date.now(),
+          loopCurrentTrack: !!track.loop,
+        };
+        io.to(roomId).emit('playback-updated', room.playback);
+        io.to(roomId).emit('playback-sync', { playback: room.playback, updatedBy: socket.id });
+      }
+      io.to(roomId).emit('room-updated', room);
+      if (typeof callback === 'function') callback({ success: true });
+    } else {
+      if (typeof callback === 'function') callback({ success: false, error: 'Track not found in queue' });
+    }
+  });
+
+  // Host Kick Member (Supports room-kick and participant-kick)
+  const handleKick = (roomId: string, targetId: string, targetUsername?: string, callback?: Function) => {
+    const { room, isHost } = checkRoomAuth(roomId);
+    if (!room) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Room not found' });
+      return;
+    }
+    if (!isHost) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Unauthorized: Only the host can kick participants.' });
+      return;
+    }
+
+    const target = room.participants.find(
+      (p) =>
+        p.id === targetId ||
+        (targetUsername && p.username.toLowerCase() === targetUsername.toLowerCase()) ||
+        p.username.toLowerCase() === targetId?.toLowerCase()
+    );
+
+    if (!target) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Participant not found.' });
+      return;
+    }
+
+    if (target.id === socket.id || target.isHost) {
+      if (typeof callback === 'function') callback({ success: false, error: 'Host cannot kick themselves.' });
+      return;
+    }
+
+    // Disconnect target socket
+    const targetSocket = io.sockets.sockets.get(target.id);
+    if (targetSocket) {
+      targetSocket.emit('room-kicked', { message: 'You were removed from this room by the host.' });
+      targetSocket.emit('kicked', { message: 'You were removed from this room by the host.' });
+      targetSocket.leave(roomId);
+    }
+
+    // Remove from room participant list
+    roomManager.kickParticipant(roomId, target.id);
+
+    io.to(roomId).emit('room-updated', room);
+    io.to(roomId).emit('activity-log', {
+      id: Math.random().toString(36).substring(2, 9),
+      text: `@${target.username} was removed from the room by the host`,
+      timestamp: Date.now(),
+    });
+
+    if (typeof callback === 'function') callback({ success: true });
+  };
+
+  socket.on('room-kick', ({ roomId, targetId, targetSocketId, targetUsername }: any = {}, callback?: Function) => {
+    handleKick(roomId, targetId || targetSocketId, targetUsername, callback);
+  });
+  socket.on('participant-kick', ({ roomId, targetId }: any = {}, callback?: Function) => {
+    handleKick(roomId, targetId, undefined, callback);
   });
 
   // Chat Message (Emits both chat-message and chat-message-received)

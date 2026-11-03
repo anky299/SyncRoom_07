@@ -17,6 +17,86 @@
       "username": "testuser123",
       "avatar": "#00F0FF",
       "createdAt": 1787416896003
+    },
+    {
+      "id": "l78epix",
+      "email": "test_live_verify@syncroom.com",
+      "passwordHash": "ffc121a2210958bf74e5a874668f3d978d24b6a8241496ccff3c0ea245e4f126",
+      "username": "live_verifier",
+      "avatar": "#00F0FF",
+      "createdAt": 1787421105258
+    },
+    {
+      "id": "jqr34ur",
+      "email": "alice_1790622478546@syncroom.test",
+      "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+      "username": "Alice_8546",
+      "avatar": "#00F0FF",
+      "createdAt": 1790622487256
+    },
+    {
+      "id": "0o5uhm6",
+      "email": "bob_1790622491373@syncroom.test",
+      "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+      "username": "Bob_1373",
+      "avatar": "#00F0FF",
+      "createdAt": 1790622499570
+    },
+    {
+      "id": "mphggtn",
+      "email": "alice_1790622684331@syncroom.test",
+      "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+      "username": "Alice_4332",
+      "avatar": "#00F0FF",
+      "createdAt": 1790622692624
+    },
+    {
+      "id": "tan5no6",
+      "email": "bob_1790622696693@syncroom.test",
+      "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+      "username": "Bob_6693",
+      "avatar": "#00F0FF",
+      "createdAt": 1790622704823
+    },
+    {
+      "id": "pbr0g3i",
+      "email": "host_1790623470222@test.com",
+      "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+      "username": "Host_1790623470222",
+      "avatar": "#00F0FF",
+      "createdAt": 1790623470920
+    },
+    {
+      "id": "ss78ee7",
+      "email": "userb_1790623470222@test.com",
+      "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+      "username": "UserB_1790623470222",
+      "avatar": "#00F0FF",
+      "createdAt": 1790623474998
+    },
+    {
+      "id": "aje7sou",
+      "email": "userb_1790884241059@test.com",
+      "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+      "username": "UserB_1790884241059",
+      "avatar": "#00F0FF",
+      "createdAt": 1790884241673
+    },
+    {
+      "id": "zw3m963",
+      "email": "userb_1790884297547@test.com",
+      "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+      "username": "UserB_1790884297547",
+      "avatar": "#00F0FF",
+      "createdAt": 1790884298168
+    },
+    {
+      "id": "7a509nc",
+      "email": "userc_1790884302339@test.com",
+      "passwordHash": "ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f",
+      "username": "UserC_1790884302340",
+      "avatar": "#00F0FF",
+      "createdAt": 1790884302958
     }
   ],
   "friends": [],
@@ -137,54 +217,722 @@
       "durationMinutes": 4,
       "roomName": "Chilll",
       "timestamp": 1787409502402
+    },
+    {
+      "id": "vj82n31",
+      "username": "Guest",
+      "trackTitle": "Sync Audio Test",
+      "artist": "DeviceA_Host",
+      "durationMinutes": 3,
+      "roomName": "MultiDevice Test Space",
+      "timestamp": 1790620799084
+    },
+    {
+      "id": "bal4ikx",
+      "username": "Guest",
+      "trackTitle": "Sync Audio Test",
+      "artist": "DeviceA_Host",
+      "durationMinutes": 3,
+      "roomName": "MultiDevice Test Space",
+      "timestamp": 1790620802107
+    },
+    {
+      "id": "isrqwaj",
+      "username": "Guest",
+      "trackTitle": "Sync Audio Test",
+      "artist": "DeviceA_Host",
+      "durationMinutes": 3,
+      "roomName": "MultiDevice Test Space",
+      "timestamp": 1790620803115
+    },
+    {
+      "id": "jm1b3uz",
+      "username": "Guest",
+      "trackTitle": "Sync Audio Test",
+      "artist": "DeviceA_Host",
+      "durationMinutes": 3,
+      "roomName": "MultiDevice Test Space",
+      "timestamp": 1790620804129
+    },
+    {
+      "id": "r31n7o6",
+      "username": "Guest",
+      "trackTitle": "Sync Audio Test",
+      "artist": "DeviceA_Host",
+      "durationMinutes": 3,
+      "roomName": "MultiDevice Test Space",
+      "timestamp": 1790620805139
+    },
+    {
+      "id": "2htkmni",
+      "username": "Guest",
+      "trackTitle": "Lofi Beats YouTube",
+      "artist": "Lofi Girl",
+      "durationMinutes": 4,
+      "roomName": "MultiDevice Test Space",
+      "timestamp": 1790620814225
+    },
+    {
+      "id": "bcbqq1p",
+      "username": "Ankit_Host",
+      "trackTitle": "Midnight Resonance",
+      "artist": "Chillwave Collective",
+      "durationMinutes": 4,
+      "roomName": "Lofi Chill Public Space",
+      "timestamp": 1790621989052
+    },
+    {
+      "id": "d8zsl23",
+      "username": "User",
+      "trackTitle": "Shape of You",
+      "artist": "Ed Sheeran",
+      "durationMinutes": 4,
+      "roomName": "Chill",
+      "timestamp": 1790878771941
+    },
+    {
+      "id": "555noa8",
+      "username": "User",
+      "trackTitle": "KALYANI (with Shreya Ghoshal) OFFICIAL MUSIC VIDEO | ARJN | KDS | FIFTY4 | RONN | SHREYA GHOSHAL |",
+      "artist": "MONEY VERSE RECORDS and ARJN",
+      "durationMinutes": 5,
+      "roomName": "Chilax",
+      "timestamp": 1790880443977
+    },
+    {
+      "id": "qj4ivg5",
+      "username": "User",
+      "trackTitle": "Barsaat - Banjaare (Official Video)",
+      "artist": "Banjaare and Sony Music India",
+      "durationMinutes": 3,
+      "roomName": "Chilax",
+      "timestamp": 1790880589748
+    },
+    {
+      "id": "lqwvkwl",
+      "username": "ListenerUser",
+      "trackTitle": "Requested Track 1",
+      "artist": "Cool Artist",
+      "durationMinutes": 3,
+      "roomName": "Security & Loop Room",
+      "timestamp": 1790882125101
+    },
+    {
+      "id": "noq6sqs",
+      "username": "ListenerUser",
+      "trackTitle": "Requested Track 1",
+      "artist": "Cool Artist",
+      "durationMinutes": 3,
+      "roomName": "Security & Loop Room",
+      "timestamp": 1790882267596
+    },
+    {
+      "id": "01drxnu",
+      "username": "User",
+      "trackTitle": "KALYANI (with Shreya Ghoshal) OFFICIAL MUSIC VIDEO | ARJN | KDS | FIFTY4 | RONN | SHREYA GHOSHAL |",
+      "artist": "MONEY VERSE RECORDS and ARJN",
+      "durationMinutes": 5,
+      "roomName": "Security & Loop Room",
+      "timestamp": 1790882433138
+    },
+    {
+      "id": "d3y24fz",
+      "username": "User",
+      "trackTitle": "KALYANI (with Shreya Ghoshal) ARJN | KDS | FIFTY4 | RONN | Kya Fitoor Door Raha Kyun JaayeNa Lyrical",
+      "artist": "Universal Music India",
+      "durationMinutes": 4,
+      "roomName": "Host Transfer Test Room",
+      "timestamp": 1790885507341
+    },
+    {
+      "id": "fyz19vt",
+      "username": "User",
+      "trackTitle": "KALYANI (with Shreya Ghoshal) ARJN | KDS | FIFTY4 | RONN | Kya Fitoor Door Raha Kyun JaayeNa Lyrical",
+      "artist": "Universal Music India",
+      "durationMinutes": 4,
+      "roomName": "Host Transfer Test Room",
+      "timestamp": 1790886592662
+    },
+    {
+      "id": "pedvwz1",
+      "username": "User",
+      "trackTitle": "KALYANI (with Shreya Ghoshal) ARJN | KDS | FIFTY4 | RONN | Kya Fitoor Door Raha Kyun JaayeNa Lyrical",
+      "artist": "Universal Music India",
+      "durationMinutes": 4,
+      "roomName": "Host Transfer Test Room",
+      "timestamp": 1790887285940
+    },
+    {
+      "id": "h150fdc",
+      "username": "User",
+      "trackTitle": "KALYANI (with Shreya Ghoshal) OFFICIAL MUSIC VIDEO | ARJN | KDS | FIFTY4 | RONN | SHREYA GHOSHAL |",
+      "artist": "MONEY VERSE RECORDS and ARJN",
+      "durationMinutes": 5,
+      "roomName": "Host Transfer Test Room",
+      "timestamp": 1790887748506
+    },
+    {
+      "id": "zwbxr6e",
+      "username": "User",
+      "trackTitle": "KALYANI (with Shreya Ghoshal) OFFICIAL MUSIC VIDEO | ARJN | KDS | FIFTY4 | RONN | SHREYA GHOSHAL |",
+      "artist": "MONEY VERSE RECORDS and ARJN",
+      "durationMinutes": 5,
+      "roomName": "chillax",
+      "timestamp": 1790890328642
+    },
+    {
+      "id": "5ffd0a9",
+      "username": "User",
+      "trackTitle": "KALYANI (with Shreya Ghoshal) OFFICIAL MUSIC VIDEO | ARJN | KDS | FIFTY4 | RONN | SHREYA GHOSHAL |",
+      "artist": "MONEY VERSE RECORDS and ARJN",
+      "durationMinutes": 5,
+      "roomName": "chillax",
+      "timestamp": 1790890333706
+    },
+    {
+      "id": "x6gbrgd",
+      "username": "User",
+      "trackTitle": "KALYANI (with Shreya Ghoshal) OFFICIAL MUSIC VIDEO | ARJN | KDS | FIFTY4 | RONN | SHREYA GHOSHAL |",
+      "artist": "MONEY VERSE RECORDS and ARJN",
+      "durationMinutes": 5,
+      "roomName": "chillax",
+      "timestamp": 1790890340216
+    },
+    {
+      "id": "ahjbst3",
+      "username": "User",
+      "trackTitle": "KALYANI (with Shreya Ghoshal) OFFICIAL MUSIC VIDEO | ARJN | KDS | FIFTY4 | RONN | SHREYA GHOSHAL |",
+      "artist": "MONEY VERSE RECORDS and ARJN",
+      "durationMinutes": 5,
+      "roomName": "Host Transfer Test Room",
+      "timestamp": 1790890408210
+    },
+    {
+      "id": "89tmfy0",
+      "username": "User",
+      "trackTitle": "KALYANI (with Shreya Ghoshal) ARJN | KDS | FIFTY4 | RONN | Kya Fitoor Door Raha Kyun JaayeNa Lyrical",
+      "artist": "Universal Music India",
+      "durationMinutes": 4,
+      "roomName": "chill",
+      "timestamp": 1790943461685
+    },
+    {
+      "id": "1i53x64",
+      "username": "User",
+      "trackTitle": "KALYANI (with Shreya Ghoshal) ARJN | KDS | FIFTY4 | RONN | Kya Fitoor Door Raha Kyun JaayeNa Lyrical",
+      "artist": "Universal Music India",
+      "durationMinutes": 4,
+      "roomName": "chill",
+      "timestamp": 1790943838615
+    },
+    {
+      "id": "v1cenq5",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chill",
+      "timestamp": 1790943934460
+    },
+    {
+      "id": "6dvlzh9",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chill",
+      "timestamp": 1790945330996
+    },
+    {
+      "id": "et43ppe",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chillax",
+      "timestamp": 1790974367095
+    },
+    {
+      "id": "scqgvpl",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chillax",
+      "timestamp": 1790974370495
+    },
+    {
+      "id": "lrv6gsx",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chillax",
+      "timestamp": 1790974371726
+    },
+    {
+      "id": "ef6p4qi",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chillax",
+      "timestamp": 1790974381792
+    },
+    {
+      "id": "haixgvo",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chillax",
+      "timestamp": 1790974409823
+    },
+    {
+      "id": "m9zqd8v",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chillax",
+      "timestamp": 1790975073691
+    },
+    {
+      "id": "je4x81z",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chillax",
+      "timestamp": 1790975082656
+    },
+    {
+      "id": "nm037kw",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chillax",
+      "timestamp": 1790975090575
+    },
+    {
+      "id": "dt70tnj",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chillax",
+      "timestamp": 1790975090968
+    },
+    {
+      "id": "y3n2x65",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chillax",
+      "timestamp": 1790975093283
+    },
+    {
+      "id": "pq9ayv9",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "chillax",
+      "timestamp": 1790975095804
+    },
+    {
+      "id": "6h833at",
+      "username": "User",
+      "trackTitle": "Mind Relax Lofi Mashup | Mind Relaxing Songs | Mind Relax Lofi Song | Slowed And Reverb | Lofi Songs",
+      "artist": "ɴɪᴛɪɴ_ᴛᴏᴍᴜ_ᴘᴀʏᴀʟ",
+      "durationMinutes": 30,
+      "roomName": "Test Room",
+      "timestamp": 1791022146895
+    },
+    {
+      "id": "uly8in3",
+      "username": "User",
+      "trackTitle": "Mind Relax Lofi Mashup | Mind Relaxing Songs | Mind Relax Lofi Song | Slowed And Reverb | Lofi Songs",
+      "artist": "ɴɪᴛɪɴ_ᴛᴏᴍᴜ_ᴘᴀʏᴀʟ",
+      "durationMinutes": 30,
+      "roomName": "Test Room",
+      "timestamp": 1791022153338
+    },
+    {
+      "id": "t7q6t0o",
+      "username": "User",
+      "trackTitle": "Mind Relax Lofi Mashup | Mind Relaxing Songs | Mind Relax Lofi Song | Slowed And Reverb | Lofi Songs",
+      "artist": "ɴɪᴛɪɴ_ᴛᴏᴍᴜ_ᴘᴀʏᴀʟ",
+      "durationMinutes": 30,
+      "roomName": "Test Room",
+      "timestamp": 1791035093033
+    },
+    {
+      "id": "i4dp6m3",
+      "username": "User",
+      "trackTitle": "Mind Relax Lofi Mashup | Mind Relaxing Songs | Mind Relax Lofi Song | Slowed And Reverb | Lofi Songs",
+      "artist": "ɴɪᴛɪɴ_ᴛᴏᴍᴜ_ᴘᴀʏᴀʟ",
+      "durationMinutes": 30,
+      "roomName": "Test Room",
+      "timestamp": 1791035130543
+    },
+    {
+      "id": "nlb6z9s",
+      "username": "User",
+      "trackTitle": "Mind Relax Lofi Mashup | Mind Relaxing Songs | Mind Relax Lofi Song | Slowed And Reverb | Lofi Songs",
+      "artist": "ɴɪᴛɪɴ_ᴛᴏᴍᴜ_ᴘᴀʏᴀʟ",
+      "durationMinutes": 30,
+      "roomName": "Test Room",
+      "timestamp": 1791035154632
+    },
+    {
+      "id": "67w32rp",
+      "username": "User",
+      "trackTitle": "Mind Relax Lofi Mashup | Mind Relaxing Songs | Mind Relax Lofi Song | Slowed And Reverb | Lofi Songs",
+      "artist": "ɴɪᴛɪɴ_ᴛᴏᴍᴜ_ᴘᴀʏᴀʟ",
+      "durationMinutes": 30,
+      "roomName": "Test Room",
+      "timestamp": 1791035156882
+    },
+    {
+      "id": "dv5o0jb",
+      "username": "User",
+      "trackTitle": "Mind Relax Lofi Mashup | Mind Relaxing Songs | Mind Relax Lofi Song | Slowed And Reverb | Lofi Songs",
+      "artist": "ɴɪᴛɪɴ_ᴛᴏᴍᴜ_ᴘᴀʏᴀʟ",
+      "durationMinutes": 30,
+      "roomName": "Test Room",
+      "timestamp": 1791035165248
+    },
+    {
+      "id": "uonqfek",
+      "username": "User",
+      "trackTitle": "Mind Relax Lofi Mashup | Mind Relaxing Songs | Mind Relax Lofi Song | Slowed And Reverb | Lofi Songs",
+      "artist": "ɴɪᴛɪɴ_ᴛᴏᴍᴜ_ᴘᴀʏᴀʟ",
+      "durationMinutes": 30,
+      "roomName": "Test Room",
+      "timestamp": 1791035170088
+    },
+    {
+      "id": "dvh6ugf",
+      "username": "User",
+      "trackTitle": "Mind Relax Lofi Mashup | Mind Relaxing Songs | Mind Relax Lofi Song | Slowed And Reverb | Lofi Songs",
+      "artist": "ɴɪᴛɪɴ_ᴛᴏᴍᴜ_ᴘᴀʏᴀʟ",
+      "durationMinutes": 30,
+      "roomName": "Test Room",
+      "timestamp": 1791035178566
+    },
+    {
+      "id": "6ane5rt",
+      "username": "User",
+      "trackTitle": "Mind Relax Lofi Mashup | Mind Relaxing Songs | Mind Relax Lofi Song | Slowed And Reverb | Lofi Songs",
+      "artist": "ɴɪᴛɪɴ_ᴛᴏᴍᴜ_ᴘᴀʏᴀʟ",
+      "durationMinutes": 30,
+      "roomName": "Test Room",
+      "timestamp": 1791035186044
+    },
+    {
+      "id": "k7w1xgf",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "Test Room",
+      "timestamp": 1791035219099
+    },
+    {
+      "id": "4zsiwor",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "Test Room",
+      "timestamp": 1791035221620
+    },
+    {
+      "id": "1m78ekd",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "Test Room",
+      "timestamp": 1791035239371
+    },
+    {
+      "id": "yd60koq",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "Test Room",
+      "timestamp": 1791035240944
+    },
+    {
+      "id": "rjowty9",
+      "username": "User",
+      "trackTitle": "Ishq De Fanniyar | Fukrey Returns | Pulkit Samrat & Priya Anand | Jyotica Tangri | Shaarib & Toshi",
+      "artist": "Zee Music Company",
+      "durationMinutes": 3,
+      "roomName": "Test Room",
+      "timestamp": 1791035246751
+    },
+    {
+      "id": "28rbqun",
+      "username": "User",
+      "trackTitle": "Khamoshiyan Full Video, Arijit Singh - Ali Fazal, Sapna Pabbi, Gurmeet C",
+      "artist": "SonyMusicIndiaVEVO",
+      "durationMinutes": 3,
+      "roomName": "xvy",
+      "timestamp": 1793688388949
+    },
+    {
+      "id": "r6c7lza",
+      "username": "User",
+      "trackTitle": "Khamoshiyan Full Video, Arijit Singh - Ali Fazal, Sapna Pabbi, Gurmeet C",
+      "artist": "SonyMusicIndiaVEVO",
+      "durationMinutes": 3,
+      "roomName": "xvy",
+      "timestamp": 1793688402367
+    },
+    {
+      "id": "9x10fzn",
+      "username": "User",
+      "trackTitle": "Ishq Sufiyana Lyrical | The Dirty Picture | Emraan Hashmi,Vidya Balan | Vishal - Shekhar",
+      "artist": "T-Series",
+      "durationMinutes": 6,
+      "roomName": "chillax",
+      "timestamp": 1793699977313
+    },
+    {
+      "id": "pszgdv1",
+      "username": "User",
+      "trackTitle": "Ishq Sufiyana Lyrical | The Dirty Picture | Emraan Hashmi,Vidya Balan | Vishal - Shekhar",
+      "artist": "T-Series",
+      "durationMinutes": 6,
+      "roomName": "fun vibe",
+      "timestamp": 1793701169635
+    },
+    {
+      "id": "slx2uie",
+      "username": "User",
+      "trackTitle": "Ishq Sufiyana Lyrical | The Dirty Picture | Emraan Hashmi,Vidya Balan | Vishal - Shekhar",
+      "artist": "T-Series",
+      "durationMinutes": 6,
+      "roomName": "fun vibe",
+      "timestamp": 1793701172626
+    },
+    {
+      "id": "4bs01dn",
+      "username": "User",
+      "trackTitle": "Ishq Sufiyana Lyrical | The Dirty Picture | Emraan Hashmi,Vidya Balan | Vishal - Shekhar",
+      "artist": "T-Series",
+      "durationMinutes": 6,
+      "roomName": "fun vibe",
+      "timestamp": 1793701177513
+    },
+    {
+      "id": "j5quncw",
+      "username": "User",
+      "trackTitle": "Ishq Sufiyana Lyrical | The Dirty Picture | Emraan Hashmi,Vidya Balan | Vishal - Shekhar",
+      "artist": "T-Series",
+      "durationMinutes": 6,
+      "roomName": "fun vibe",
+      "timestamp": 1793701188857
+    },
+    {
+      "id": "4csuzq4",
+      "username": "AudiophileTester",
+      "trackTitle": "Golden Hour",
+      "artist": "Audiophile Session",
+      "durationMinutes": 3,
+      "roomName": "AudiophileTester's Lounge",
+      "timestamp": 1793703820427
+    },
+    {
+      "id": "8ifya3y",
+      "username": "AudiophileTester",
+      "trackTitle": "Golden Hour",
+      "artist": "Audiophile Session",
+      "durationMinutes": 3,
+      "roomName": "AudiophileTester's Lounge",
+      "timestamp": 1793703822993
+    },
+    {
+      "id": "jxqnup9",
+      "username": "Guest",
+      "trackTitle": "Sunset Echoes",
+      "artist": "Elena Vance",
+      "durationMinutes": 3,
+      "roomName": "chillzone",
+      "timestamp": 1793704592650
+    },
+    {
+      "id": "3g1xhyn",
+      "username": "Guest",
+      "trackTitle": "Sunset Echoes",
+      "artist": "Elena Vance",
+      "durationMinutes": 3,
+      "roomName": "chillzone",
+      "timestamp": 1793704608889
     }
   ],
   "scheduledEvents": [],
   "roomHistory": [
     {
-      "username": "Ankky",
-      "roomId": "NMSPKQ",
-      "roomName": "AppnaAdda",
-      "joinedAt": 1787397994893
+      "username": "Guest",
+      "roomId": "SI9QG5",
+      "roomName": "chillax",
+      "hostUsername": "Guest",
+      "joinedAt": 1790945285917
     },
     {
       "username": "ankyy",
-      "roomId": "M8KY9J",
-      "roomName": "Apna Adda",
-      "joinedAt": 1787400675941
+      "roomId": "SI9QG5",
+      "roomName": "chillax",
+      "hostUsername": "Guest",
+      "joinedAt": 1790954040841
+    },
+    {
+      "username": "Guest",
+      "roomId": "ZFTPJ8",
+      "roomName": "chill",
+      "hostUsername": "Guest",
+      "joinedAt": 1790954401407
+    },
+    {
+      "username": "testuser123",
+      "roomId": "BBRR7E",
+      "roomName": "Chill Vibes Room",
+      "hostUsername": "testuser123",
+      "joinedAt": 1790956072868
+    },
+    {
+      "username": "Guest",
+      "roomId": "E1P35G",
+      "roomName": "chillax",
+      "hostUsername": "Guest",
+      "joinedAt": 1790974325537
+    },
+    {
+      "username": "ankky",
+      "roomId": "E1P35G",
+      "roomName": "chillax",
+      "hostUsername": "Guest",
+      "joinedAt": 1790975034734
+    },
+    {
+      "username": "testuser123",
+      "roomId": "D0526X",
+      "roomName": "Test Room",
+      "hostUsername": "testuser123",
+      "joinedAt": 1791035175857
+    },
+    {
+      "username": "Guest",
+      "roomId": "3EO840",
+      "roomName": "xvy",
+      "hostUsername": "Guest",
+      "joinedAt": 1793687516941
     },
     {
       "username": "ankyy",
-      "roomId": "TPI5E6",
-      "roomName": "ChillZone",
-      "joinedAt": 1787407186207
+      "roomId": "3EO840",
+      "roomName": "xvy",
+      "hostUsername": "Guest",
+      "joinedAt": 1793688361302
     },
     {
-      "username": "ankyy",
-      "roomId": "CNFDM5",
-      "roomName": "Chill",
-      "joinedAt": 1787408134122
+      "username": "Guest",
+      "roomId": "N7QEH4",
+      "roomName": "chillax",
+      "hostUsername": "Guest",
+      "joinedAt": 1793699908632
     },
     {
-      "username": "ankyy",
-      "roomId": "D03IA0",
-      "roomName": "Lo-fi Beats",
-      "hostUsername": "ankyy",
-      "joinedAt": 1787409358216
+      "username": "Guest",
+      "roomId": "3AXRVG",
+      "roomName": "fun vibe",
+      "hostUsername": "Guest",
+      "joinedAt": 1793701140991
     },
     {
-      "username": "ankyy",
-      "roomId": "ZBFT30",
-      "roomName": "Chilll",
-      "hostUsername": "ankyy",
-      "joinedAt": 1787409467030
+      "username": "AudiophileTester",
+      "roomId": "AUDIOPHILE",
+      "roomName": "AudiophileTester's Lounge",
+      "hostUsername": "AudiophileTester",
+      "joinedAt": 1793703845521
     },
     {
-      "username": "ankyy",
-      "roomId": "GO8UAV",
-      "roomName": "ChilxZone",
-      "hostUsername": "ankyy",
-      "joinedAt": 1787412304100
+      "username": "Ankit",
+      "roomId": "AUDIOPHILE",
+      "roomName": "Ankit's Lounge",
+      "hostUsername": "Ankit",
+      "joinedAt": 1793704414250
+    },
+    {
+      "username": "Guest",
+      "roomId": "5SHB0C",
+      "roomName": "chilax",
+      "hostUsername": "Guest",
+      "joinedAt": 1793704430317
+    },
+    {
+      "username": "Guest",
+      "roomId": "LFUAAJ",
+      "roomName": "chillzone",
+      "hostUsername": "Guest",
+      "joinedAt": 1793704572195
+    }
+  ],
+  "uploadedTracks": [
+    {
+      "id": "wjhmrex",
+      "title": "anon_song",
+      "artist": "Guest",
+      "duration": 180,
+      "url": "/uploads/1790622725303-14742069.mp3",
+      "source": "upload",
+      "uploadedBy": "Guest",
+      "votes": {},
+      "voteCount": 0,
+      "approved": true
+    },
+    {
+      "id": "5xzzog6",
+      "title": "spoofed_song",
+      "artist": "Alice_4332",
+      "duration": 180,
+      "url": "/uploads/1790622725291-348359400.mp3",
+      "source": "upload",
+      "uploadedBy": "Alice_4332",
+      "votes": {},
+      "voteCount": 0,
+      "approved": true
+    },
+    {
+      "id": "5y5trei",
+      "title": "bob_song",
+      "artist": "Bob_6693",
+      "duration": 180,
+      "url": "/uploads/1790622708956-78758.mp3",
+      "source": "upload",
+      "uploadedBy": "Bob_6693",
+      "votes": {},
+      "voteCount": 0,
+      "approved": true
+    },
+    {
+      "id": "pyhxa0o",
+      "title": "alice_song",
+      "artist": "Alice_4332",
+      "duration": 180,
+      "url": "/uploads/1790622708939-77713059.mp3",
+      "source": "upload",
+      "uploadedBy": "Alice_4332",
+      "votes": {},
+      "voteCount": 0,
+      "approved": true
     }
   ]
 }

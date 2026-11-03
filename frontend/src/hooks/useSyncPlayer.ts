@@ -22,12 +22,14 @@ export interface Track {
   voteCount: number;
   approved: boolean;
   lyricsUrl?: string; // Phase 3 Synced Lyrics LRC path
+  loop?: boolean; // Track-level loop flag
 }
 
 export interface PlaybackState {
   isPlaying: boolean;
   position: number;
   serverTimestamp: number;
+  loopCurrentTrack?: boolean;
 }
 
 export interface Participant {
@@ -69,6 +71,7 @@ export interface Room {
   currentTrack: Track | null;
   playback: PlaybackState;
   queue: Track[];
+  playedTracks?: Track[];
   participants: Participant[];
   chatHistory: ChatMessage[];
   theme?: string; // Phase 3 Room visual themes
@@ -91,7 +94,7 @@ export interface LyricLine {
 
 const BACKEND_URL = getBackendUrl();
 
-export function useSyncPlayer(roomId: string, username: string) {
+export function useSyncPlayer(roomId: string, username: string, password?: string) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [room, setRoom] = useState<Room | null>(null);
   const [participant, setParticipant] = useState<Participant | null>(null);
@@ -113,9 +116,13 @@ export function useSyncPlayer(roomId: string, username: string) {
   // Phase 3 states
   const [audioDelay, setAudioDelay] = useState<number>(0); // -200ms to +200ms
   const [lyrics, setLyrics] = useState<LyricLine[]>([]);
+  const [authoritativePosition, setAuthoritativePosition] = useState<number>(0);
 
   // Audio HTML5 Element
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [audioElementState, setAudioElementState] = useState<HTMLAudioElement | null>(null);
+  const [isAudioPlaying, setIsAudioPlaying] = useState<boolean>(false);
+  const [playbackStatus, setPlaybackStatus] = useState<'READY' | 'PLAYING' | 'PAUSED' | 'BUFFERING' | 'ERROR'>('READY');
 
   // Refs for timer loops
   const roomRef = useRef<Room | null>(null);
@@ -158,17 +165,56 @@ export function useSyncPlayer(roomId: string, username: string) {
     localStorage.setItem('syncroom_audio_delay', val.toString());
   };
 
-  // Initialize Audio element
+  // Initialize Audio element with robust state listeners
   useEffect(() => {
     const audio = new Audio();
     audio.crossOrigin = 'anonymous';
     audio.preload = 'auto';
     audioRef.current = audio;
+    setAudioElementState(audio);
+
+    const onPlay = () => {
+      setIsAudioPlaying(true);
+      setPlaybackStatus('PLAYING');
+    };
+    const onPlaying = () => {
+      setIsAudioPlaying(true);
+      setPlaybackStatus('PLAYING');
+    };
+    const onPause = () => {
+      setIsAudioPlaying(false);
+      setPlaybackStatus('PAUSED');
+    };
+    const onEnded = () => {
+      setIsAudioPlaying(false);
+      setPlaybackStatus('PAUSED');
+    };
+    const onWaiting = () => {
+      setPlaybackStatus('BUFFERING');
+    };
+    const onError = () => {
+      setIsAudioPlaying(false);
+      setPlaybackStatus('ERROR');
+    };
+
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('playing', onPlaying);
+    audio.addEventListener('pause', onPause);
+    audio.addEventListener('ended', onEnded);
+    audio.addEventListener('waiting', onWaiting);
+    audio.addEventListener('error', onError);
 
     return () => {
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('playing', onPlaying);
+      audio.removeEventListener('pause', onPause);
+      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('waiting', onWaiting);
+      audio.removeEventListener('error', onError);
       audio.pause();
       audio.src = '';
       audioRef.current = null;
+      setAudioElementState(null);
     };
   }, []);
 
@@ -262,7 +308,7 @@ export function useSyncPlayer(roomId: string, username: string) {
 
       newSocket.emit(
         'room-join',
-        { roomId, username },
+        { roomId, username, password: password || undefined },
         (res: { success: boolean; room?: Room; participant?: Participant; error?: string }) => {
           clearTimeout(connectionTimer);
           if (res.success && res.room && res.participant) {
@@ -311,11 +357,23 @@ export function useSyncPlayer(roomId: string, username: string) {
       });
     });
 
-    newSocket.on('kicked', () => {
-      setError('You have been kicked by the host.');
+    newSocket.on('playback-updated', (playback: PlaybackState) => {
+      setRoom((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          playback,
+        };
+      });
+    });
+
+    const handleKicked = (data?: { message?: string }) => {
+      setError(data?.message || 'You were removed from this room by the host.');
       setRoom(null);
       newSocket.disconnect();
-    });
+    };
+    newSocket.on('kicked', handleKicked);
+    newSocket.on('room-kicked', handleKicked);
 
     newSocket.on('room-deleted', (data: { message?: string }) => {
       setError(data.message || 'This room has been deleted by the host.');
@@ -345,7 +403,7 @@ export function useSyncPlayer(roomId: string, username: string) {
     return () => {
       newSocket.disconnect();
     };
-  }, [roomId, username]);
+  }, [roomId, username, password]);
 
   // NTP Clock sync loop
   const performNtpSync = (s: Socket) => {
@@ -385,13 +443,28 @@ export function useSyncPlayer(roomId: string, username: string) {
     if (!audio || !room) return;
 
     const track = room.currentTrack;
-    if (!track || track.source === 'youtube' || track.source === 'spotify') {
+    if (!track) {
+      if (!audio.paused) audio.pause();
+      audio.src = '';
+      setIsAudioPlaying(false);
+      setPlaybackStatus('READY');
+      return;
+    }
+
+    if (track.source === 'youtube' || track.source === 'spotify') {
       if (!audio.paused) audio.pause();
       audio.src = '';
       return;
     }
 
-    const audioSource = track.url.startsWith('http') ? track.url : `${BACKEND_URL}${track.url}`;
+    const resolveAudioUrl = (url: string) => {
+      if (!url) return '';
+      if (url.startsWith('http://') || url.startsWith('https://')) return url;
+      if (url.startsWith('/audio/')) return url;
+      return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+    };
+
+    const audioSource = resolveAudioUrl(track.url);
 
     if (audio.src !== audioSource) {
       audio.src = audioSource;
@@ -409,7 +482,7 @@ export function useSyncPlayer(roomId: string, username: string) {
         audio.pause();
       }
     }
-  }, [room?.currentTrack?.id, room?.playback?.isPlaying]);
+  }, [room?.currentTrack?.id, room?.currentTrack?.url, room?.playback?.isPlaying]);
 
   // Main Drift Correction Tick loop incorporating manual Audio Calibration
   useEffect(() => {
@@ -417,71 +490,152 @@ export function useSyncPlayer(roomId: string, username: string) {
       const audio = audioRef.current;
       const activeRoom = roomRef.current;
 
-      if (!audio || !activeRoom || !activeRoom.currentTrack || !activeRoom.playback.isPlaying) {
+      if (!activeRoom || !activeRoom.currentTrack) {
+        setAuthoritativePosition(0);
         setDrift(0);
         return;
       }
 
+      const duration = activeRoom.currentTrack.duration || 180;
       const serverTimeNow = Date.now() + clockOffsetRef.current;
-      const timeSinceUpdateMs = serverTimeNow - activeRoom.playback.serverTimestamp;
-      
-      // Calculate target position adding manual Audio Delay calibration calibration
-      const delayOffsetSecs = audioDelayRef.current / 1000;
-      const targetPos = activeRoom.playback.position + (timeSinceUpdateMs / 1000) + delayOffsetSecs;
+      let targetPos = activeRoom.playback.position;
 
-      const localPos = audio.currentTime;
-      const currentDrift = localPos - targetPos;
-      setDrift(Math.round(currentDrift * 1000));
-
-      const absDrift = Math.abs(currentDrift);
-
-      if (targetPos >= activeRoom.currentTrack.duration) {
-        if (isHost && audio.currentTime >= activeRoom.currentTrack.duration - 0.5) {
-          nextTrack();
-        }
-        return;
+      if (activeRoom.playback.isPlaying) {
+        const timeSinceUpdateMs = Math.max(0, serverTimeNow - activeRoom.playback.serverTimestamp);
+        const delayOffsetSecs = audioDelayRef.current / 1000;
+        targetPos = Math.min(duration, activeRoom.playback.position + (timeSinceUpdateMs / 1000) + delayOffsetSecs);
       }
 
-      if (absDrift > 1.5) {
-        audio.currentTime = Math.max(0, targetPos);
-        audio.playbackRate = 1.0;
-      } else if (absDrift > 0.05) {
-        if (currentDrift > 0) {
-          audio.playbackRate = 0.95;
+      setAuthoritativePosition(targetPos);
+
+      const isUpload = activeRoom.currentTrack.source === 'upload' || !activeRoom.currentTrack.source;
+
+      if (isUpload && audio) {
+        if (!activeRoom.playback.isPlaying) {
+          setDrift(0);
+          return;
+        }
+
+        const localPos = audio.currentTime;
+        const currentDrift = localPos - targetPos;
+        setDrift(Math.round(currentDrift * 1000));
+
+        const absDrift = Math.abs(currentDrift);
+
+        if (targetPos >= duration) {
+          if (isHost && audio.currentTime >= duration - 0.5) {
+            handleAutoEnd();
+          }
+          return;
+        }
+
+        if (absDrift > 1.5) {
+          audio.currentTime = Math.max(0, targetPos);
+          audio.playbackRate = 1.0;
+        } else if (absDrift > 0.05) {
+          if (currentDrift > 0) {
+            audio.playbackRate = 0.95;
+          } else {
+            audio.playbackRate = 1.05;
+          }
         } else {
-          audio.playbackRate = 1.05;
+          audio.playbackRate = 1.0;
         }
       } else {
-        audio.playbackRate = 1.0;
+        setDrift(0);
+        if (targetPos >= duration && activeRoom.playback.isPlaying && isHost) {
+          handleAutoEnd();
+        }
       }
     }, 250);
 
     return () => clearInterval(timer);
   }, [room?.roomId, isHost]);
 
+  // Audio HTML5 ended listener
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const handleAudioEnded = () => {
+      if (isHost || (roomRef.current?.settings.collaborativeMode)) {
+        handleAutoEnd();
+      }
+    };
+    audio.addEventListener('ended', handleAudioEnded);
+    return () => {
+      audio.removeEventListener('ended', handleAudioEnded);
+    };
+  }, [isHost]);
+
+  // Auto-end transition or loop
+  const handleAutoEnd = (shuffle?: boolean) => {
+    if (!socket || !roomRef.current) return;
+    socket.emit('playback-next', { roomId: roomRef.current.roomId, isAutoEnd: true, shuffle }, (res: { success: boolean; error?: string; looped?: boolean }) => {
+      if (res && !res.success && res.error) console.log('[AutoEnd Error]', res.error);
+    });
+  };
+
   // Emitters and Controllers
   const togglePlayPause = () => {
     if (!socket || !room || !hasControl) return;
 
-    const audio = audioRef.current;
-    if (!audio) return;
+    const willPlay = !room.playback.isPlaying;
+    const isHtmlAudio = room.currentTrack?.source === 'upload' || !room.currentTrack?.source;
 
-    const isPlaying = !room.playback.isPlaying;
-    const position = audio.currentTime;
+    if (isHtmlAudio && audioRef.current) {
+      if (willPlay) {
+        // Direct execution in user click gesture avoids Autoplay blocking
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsAudioPlaying(true);
+              setPlaybackStatus('PLAYING');
+            })
+            .catch((err) => {
+              console.warn('[Audio Play Promise Note]', err);
+            });
+        }
+      } else {
+        audioRef.current.pause();
+        setIsAudioPlaying(false);
+        setPlaybackStatus('PAUSED');
+      }
+    }
+
+    const position = isHtmlAudio && audioRef.current ? audioRef.current.currentTime : authoritativePosition;
 
     socket.emit('playback-state-change', {
       roomId: room.roomId,
-      isPlaying,
+      isPlaying: willPlay,
       position,
     }, (res: { success: boolean; error?: string }) => {
-      if (!res.success) alert(res.error);
+      if (res && !res.success && res.error) console.error(res.error);
     });
+  };
+
+  const setExternalPlaybackState = (
+    playing: boolean,
+    status?: 'READY' | 'PLAYING' | 'PAUSED' | 'BUFFERING' | 'ERROR'
+  ) => {
+    setIsAudioPlaying(playing);
+    if (status) {
+      setPlaybackStatus(status);
+    } else {
+      setPlaybackStatus(playing ? 'PLAYING' : 'PAUSED');
+    }
   };
 
   const seek = (seconds: number) => {
     if (!socket || !room || !hasControl) return;
 
     const isPlaying = room.playback.isPlaying;
+    const isHtmlAudio = room.currentTrack?.source === 'upload' || !room.currentTrack?.source;
+    if (isHtmlAudio && audioRef.current) {
+      audioRef.current.currentTime = seconds;
+    }
+    setAuthoritativePosition(seconds);
+
     socket.emit('playback-state-change', {
       roomId: room.roomId,
       isPlaying,
@@ -491,31 +645,47 @@ export function useSyncPlayer(roomId: string, username: string) {
     });
   };
 
-  const nextTrack = () => {
-    if (!socket || !room) return;
-    
-    const canSkip = isHost || (room.settings.collaborativeMode && room.settings.allowEveryoneToSkip);
-    if (!canSkip) {
-      alert('Only the host can skip tracks.');
+  const prevTrack = () => {
+    if (!socket || !room || !hasControl) return;
+    const isHtmlAudio = room.currentTrack?.source === 'upload' || !room.currentTrack?.source;
+    const currentPos = isHtmlAudio && audioRef.current ? audioRef.current.currentTime : authoritativePosition;
+
+    if (currentPos > 3) {
+      seek(0);
       return;
     }
 
-    socket.emit('playback-next', { roomId: room.roomId }, (res: { success: boolean; error?: string }) => {
-      if (!res.success) alert(res.error);
+    socket.emit('playback-prev', { roomId: room.roomId, currentPosition: currentPos }, (res: { success: boolean; error?: string }) => {
+      if (res && !res.success && res.error) alert(res.error);
+    });
+  };
+
+  const nextTrack = (shuffle?: boolean) => {
+    if (!socket || !room || !hasControl) return;
+    socket.emit('playback-next', { roomId: room.roomId, isAutoEnd: false, shuffle }, (res: { success: boolean; error?: string }) => {
+      if (res && !res.success && res.error) alert(res.error);
+    });
+  };
+
+  const toggleLoop = () => {
+    if (!socket || !room || !hasControl) return;
+    const nextLoop = !room.playback.loopCurrentTrack;
+    socket.emit('playback-loop', { roomId: room.roomId, loop: nextLoop }, (res: { success: boolean; error?: string }) => {
+      if (res && !res.success && res.error) alert(res.error);
+    });
+  };
+
+  const toggleQueueItemLoop = (trackId: string) => {
+    if (!socket || !room || !hasControl) return;
+    socket.emit('queue-loop-toggle', { roomId: room.roomId, trackId }, (res: { success: boolean; error?: string }) => {
+      if (res && !res.success && res.error) alert(res.error);
     });
   };
 
   const addToQueue = (track: Track) => {
     if (!socket || !room) return;
-
-    const canAdd = isHost || (room.settings.collaborativeMode && room.settings.allowEveryoneToAddSongs);
-    if (!canAdd) {
-      alert('Only the host can add tracks.');
-      return;
-    }
-
-    socket.emit('queue-add', { roomId: room.roomId, track }, (res: { success: boolean; error?: string }) => {
-      if (!res.success) alert(res.error);
+    socket.emit('queue-add', { roomId: room.roomId, track }, (res: { success: boolean; error?: string; approved?: boolean }) => {
+      if (res && !res.success && res.error) alert(res.error);
     });
   };
 
@@ -526,7 +696,9 @@ export function useSyncPlayer(roomId: string, username: string) {
 
   const removeFromQueue = (trackId: string) => {
     if (!socket || !room) return;
-    socket.emit('queue-remove', { roomId: room.roomId, trackId });
+    socket.emit('queue-remove', { roomId: room.roomId, trackId }, (res: { success: boolean; error?: string }) => {
+      if (res && !res.success && res.error) alert(res.error);
+    });
   };
 
   const voteTrack = (trackId: string, voteType: 'up' | 'down' | 'none') => {
@@ -536,7 +708,9 @@ export function useSyncPlayer(roomId: string, username: string) {
 
   const approveTrack = (trackId: string) => {
     if (!socket || !room || !isHost) return;
-    socket.emit('track-approve', { roomId: room.roomId, trackId });
+    socket.emit('track-approve', { roomId: room.roomId, trackId }, (res: { success: boolean; error?: string }) => {
+      if (res && !res.success && res.error) alert(res.error);
+    });
   };
 
   const sendChatMessage = (message: string, replyToId?: string, replyToUser?: string) => {
@@ -585,9 +759,11 @@ export function useSyncPlayer(roomId: string, username: string) {
     socket.emit('friend-invite', { roomId: room.roomId, username, friendName });
   };
 
-  const kickParticipant = (targetId: string) => {
+  const kickParticipant = (targetId: string, targetUsername?: string) => {
     if (!socket || !room || !isHost) return;
-    socket.emit('participant-kick', { roomId: room.roomId, targetId });
+    socket.emit('room-kick', { roomId: room.roomId, targetId, targetUsername }, (res: { success: boolean; error?: string }) => {
+      if (res && !res.success && res.error) alert(res.error);
+    });
   };
 
   const transferHost = (targetId: string) => {
@@ -666,14 +842,23 @@ export function useSyncPlayer(roomId: string, username: string) {
     reactions,
     audioDelay,
     lyrics,
-    audioElement: audioRef.current,
+    authoritativePosition,
+    audioElement: audioElementState,
+    isAudioPlaying,
+    playbackStatus,
+    setExternalPlaybackState,
     hasControl,
+    isCollaborative,
     isDjBoothMode,
     isCurrentDj,
     activeDjUsername,
     togglePlayPause,
     seek,
+    prevTrack,
     nextTrack,
+    toggleLoop,
+    toggleQueueItemLoop,
+    handleAutoEnd,
     addToQueue,
     updateQueue,
     removeFromQueue,

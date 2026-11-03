@@ -15,6 +15,8 @@ interface YouTubePlayerBackendProps {
   position: number; // in seconds
   volume?: number;
   onPlayerReady?: () => void;
+  onEnded?: () => void;
+  onPlaybackStateChange?: (isPlaying: boolean) => void;
 }
 
 export default function YouTubePlayerBackend({
@@ -23,6 +25,8 @@ export default function YouTubePlayerBackend({
   position,
   volume = 0.8,
   onPlayerReady,
+  onEnded,
+  onPlaybackStateChange,
 }: YouTubePlayerBackendProps) {
   const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -77,6 +81,18 @@ export default function YouTubePlayerBackend({
           }
           if (onPlayerReady) onPlayerReady();
         },
+        onStateChange: (event: any) => {
+          if (event.data === 1) {
+            // YT.PlayerState.PLAYING
+            if (onPlaybackStateChange) onPlaybackStateChange(true);
+          } else if (event.data === 2 || event.data === 3 || event.data === 0) {
+            // 2 = PAUSED, 3 = BUFFERING, 0 = ENDED
+            if (onPlaybackStateChange) onPlaybackStateChange(false);
+          }
+          if (event.data === 0) {
+            if (onEnded) onEnded();
+          }
+        },
       },
     });
 
@@ -88,6 +104,10 @@ export default function YouTubePlayerBackend({
     if (!playerRef.current || typeof playerRef.current.playVideo !== 'function') return;
 
     if (isPlaying) {
+      const curTime = playerRef.current.getCurrentTime ? playerRef.current.getCurrentTime() : 0;
+      if (Math.abs(curTime - position) > 1.5) {
+        playerRef.current.seekTo(position, true);
+      }
       playerRef.current.playVideo();
     } else {
       playerRef.current.pauseVideo();

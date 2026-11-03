@@ -22,11 +22,15 @@ export async function safeFetchJson<T = any>(url: string, options?: RequestInit)
   if (!res.ok) {
     if (isJson) {
       const errorData = await res.json().catch(() => ({}));
-      throw new Error(errorData.error || errorData.message || `Request failed with status ${res.status}`);
+      const err: any = new Error(errorData.error || errorData.message || `Request failed with status ${res.status}`);
+      err.status = res.status;
+      throw err;
     } else {
       const text = await res.text().catch(() => '');
       const cleanSnippet = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120);
-      throw new Error(`Server returned HTML/non-JSON error (${res.status}): ${cleanSnippet || res.statusText || 'Endpoint not found'}`);
+      const err: any = new Error(`Server returned HTML/non-JSON error (${res.status}): ${cleanSnippet || res.statusText || 'Endpoint not found'}`);
+      err.status = res.status;
+      throw err;
     }
   }
 

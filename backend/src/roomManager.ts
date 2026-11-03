@@ -1,4 +1,4 @@
-import { Room, Participant, RoomSettings } from './types';
+import { Room, Participant, RoomSettings, Track } from './types';
 import { prisma } from './prisma';
 
 class RoomManager {
@@ -13,6 +13,7 @@ class RoomManager {
     try {
       const dbRooms = await prisma.room.findMany({
         include: {
+          host: true,
           queue: true,
           participants: true,
           chatHistory: {
@@ -23,10 +24,12 @@ class RoomManager {
       });
 
       for (const r of dbRooms) {
+        const hostPart = r.participants.find((p) => p.isHost);
         const room: Room = {
           roomId: r.roomCode,
           roomName: r.roomName,
           hostId: r.hostId || '',
+          creatorUsername: r.host?.username || hostPart?.username || '',
           settings: {
             isPrivate: r.isPrivate,
             password: r.passwordHash || undefined,
@@ -62,6 +65,7 @@ class RoomManager {
             approved: t.approved,
             lyricsUrl: t.lyricsUrl || undefined,
           })),
+          playedTracks: [],
           participants: r.participants.map((p) => ({
             id: p.socketId || p.id,
             username: p.username,
@@ -107,20 +111,51 @@ class RoomManager {
     hostUsername: string,
     socketId: string,
     settings: RoomSettings,
-    scheduledStartTime?: number
+    scheduledStartTime?: number,
+    customRoomId?: string
   ): Room {
-    const roomId = this.generateRoomCode();
+    const roomId = customRoomId ? customRoomId.toUpperCase() : this.generateRoomCode();
+    const effectiveHost = hostUsername.trim();
     const host: Participant = {
       id: socketId,
-      username: hostUsername.trim(),
+      username: effectiveHost,
       isHost: true,
       isOnline: true,
     };
 
+    const defaultTrack: Track = {
+      id: 'golden-hour-session',
+      title: 'Golden Hour',
+      artist: 'Audiophile Session',
+      duration: 180,
+      url: '/uploads/golden_hour.wav',
+      source: 'upload',
+      uploadedBy: effectiveHost,
+      thumbnailUrl: '/sweater_weather.jpg',
+      votes: {},
+      voteCount: 0,
+      approved: true,
+    };
+
+    const nextTrack: Track = {
+      id: 'sunset-ambient-echoes',
+      title: 'Sunset Echoes',
+      artist: 'Elena Vance',
+      duration: 150,
+      url: '/uploads/sunset_ambient.wav',
+      source: 'upload',
+      uploadedBy: effectiveHost,
+      thumbnailUrl: '/sweater_weather.jpg',
+      votes: {},
+      voteCount: 0,
+      approved: true,
+    };
+
     const room: Room = {
       roomId,
-      roomName: roomName.trim() || `${hostUsername}'s Room`,
+      roomName: roomName.trim() || `${effectiveHost}'s Room`,
       hostId: socketId,
+      creatorUsername: effectiveHost,
       settings: {
         isPrivate: settings.isPrivate,
         password: settings.password,
@@ -135,13 +170,14 @@ class RoomManager {
         autoPickNext: settings.autoPickNext ?? true,
         djBoothMode: settings.djBoothMode ?? false,
       },
-      currentTrack: null,
+      currentTrack: defaultTrack,
       playback: {
         isPlaying: false,
         position: 0,
         serverTimestamp: Date.now(),
       },
-      queue: [],
+      queue: [nextTrack],
+      playedTracks: [],
       participants: [host],
       chatHistory: [],
       theme: 'Ocean',
@@ -187,9 +223,30 @@ class RoomManager {
     socketId: string,
     password?: string
   ): { room: Room; participant: Participant } {
-    const room = this.getRoom(roomId);
+    let room = this.getRoom(roomId);
     if (!room) {
-      throw new Error('Room not found');
+      const cleanName = (username || 'Host').trim();
+      room = this.createRoom(
+        `${cleanName}'s Lounge`,
+        cleanName,
+        socketId,
+        {
+          isPrivate: false,
+          maxParticipants: 50,
+          collaborativeMode: true,
+          enableChat: true,
+          enableReactions: true,
+          enableVoting: true,
+          allowEveryoneToAddSongs: true,
+          allowEveryoneToSkip: true,
+          hostApprovalRequired: false,
+          autoPickNext: true,
+        },
+        undefined,
+        roomId.toUpperCase()
+      );
+      const hostPart = room.participants[0];
+      return { room, participant: hostPart };
     }
 
     if (room.settings.isPrivate && room.settings.password !== password) {
@@ -206,9 +263,6 @@ class RoomManager {
     );
 
     if (participant) {
-      if (participant.isOnline) {
-        throw new Error('Username is already taken in this room');
-      }
       participant.id = socketId;
       participant.isOnline = true;
     } else {
@@ -270,6 +324,23 @@ class RoomManager {
     }
 
     return { room };
+  }
+
+  public kickParticipant(roomId: string, targetId: string): { room: Room | null; kickedParticipant?: Participant } {
+    const room = this.getRoom(roomId);
+    if (!room) return { room: null };
+
+    const index = room.participants.findIndex(
+      (p) => p.id === targetId || p.username.toLowerCase() === targetId.toLowerCase()
+    );
+    if (index === -1) return { room };
+
+    const [kickedParticipant] = room.participants.splice(index, 1);
+    if (room.djs && kickedParticipant) {
+      room.djs = room.djs.filter((name) => name.toLowerCase() !== kickedParticipant.username.toLowerCase());
+    }
+
+    return { room, kickedParticipant };
   }
 
   public deleteRoom(roomId: string): boolean {
@@ -335,6 +406,48 @@ class RoomManager {
 
     return affectedRooms;
   }
+
+  public getActiveRooms(): any[] {
+    const publicRooms: any[] = [];
+    for (const room of this.rooms.values()) {
+      // Product decision: Only list public active rooms in explore
+      if (room.settings.isPrivate) continue;
+
+      const onlineParticipants = room.participants.filter((p) => p.isOnline);
+      const host = room.participants.find((p) => p.isHost) || room.participants[0];
+      const authoritativeHostUsername = host?.username || room.creatorUsername || 'Host';
+      const creatorUsername = room.creatorUsername || host?.username || 'Host';
+
+      publicRooms.push({
+        code: room.roomId,
+        name: room.roomName,
+        hostUsername: authoritativeHostUsername,
+        creatorUsername: creatorUsername,
+        hostId: room.hostId || host?.id || undefined,
+        isPrivate: false,
+        listenersCount: onlineParticipants.length,
+        currentTrack: room.currentTrack
+          ? {
+              id: room.currentTrack.id,
+              title: room.currentTrack.title,
+              artist: room.currentTrack.artist,
+              duration: room.currentTrack.duration,
+              thumbnailUrl:
+                room.currentTrack.thumbnailUrl ||
+                (room.currentTrack.source === 'youtube' && room.currentTrack.youtubeId
+                  ? `https://i.ytimg.com/vi/${room.currentTrack.youtubeId}/hqdefault.jpg`
+                  : ''),
+              source: room.currentTrack.source || 'upload',
+            }
+          : null,
+        isPlaying: room.playback.isPlaying,
+        theme: room.theme || 'Ocean',
+        createdAt: (room as any).createdAt || Date.now(),
+      });
+    }
+    return publicRooms;
+  }
 }
 
 export const roomManager = new RoomManager();
+
