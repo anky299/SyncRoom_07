@@ -1389,3 +1389,6 @@ io.on('connection', (socket) => {
 server.listen(PORT, () => {
   console.log(`⚡ SyncRoom server running on port ${PORT}`);
 });
+
+export default app;
+export { app, server, io };
