@@ -1386,9 +1386,11 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`⚡ SyncRoom server running on port ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  server.listen(PORT, () => {
+    console.log(`⚡ SyncRoom server running on port ${PORT}`);
+  });
+}
 
-export default app;
+export default server;
 export { app, server, io };

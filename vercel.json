@@ -2,7 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "services": {
     "backend": {
-      "root": "backend"
+      "root": "backend",
+      "entrypoint": "src/index.ts"
     },
     "frontend": {
       "root": "frontend",
@@ -67,6 +68,12 @@
     },
     {
       "source": "/socket.io/(.*)",
+      "destination": {
+        "service": "backend"
+      }
+    },
+    {
+      "source": "/socket.io",
       "destination": {
         "service": "backend"
       }

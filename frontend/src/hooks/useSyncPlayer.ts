@@ -287,6 +287,7 @@ export function useSyncPlayer(roomId: string, username: string, password?: strin
     const newSocket = io(BACKEND_URL, {
       reconnectionAttempts: 10,
       reconnectionDelay: 2000,
+      transports: ['websocket'],
     });
 
     setSocket(newSocket);

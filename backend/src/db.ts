@@ -28,7 +28,9 @@ interface Schema {
   uploadedTracks?: Track[];
 }
 
-const dbPath = path.join(__dirname, '..', 'database.json');
+const dbPath = process.env.VERCEL
+  ? path.join('/tmp', 'database.json')
+  : path.join(__dirname, '..', 'database.json');
 
 function withTimeout<T>(promise: Promise<T>, ms = 300): Promise<T> {
   return Promise.race([
